@@ -12,6 +12,7 @@ public abstract class Monster{
     private double attack;
     private int speed;
     private State state;
+    private int round;
 
     public Monster(String name, ElementType element, int hp, int defense, double attack, int speed){
         this.name = name;
@@ -45,6 +46,12 @@ public abstract class Monster{
 
         return damage;
     }
+
+    //Monster takes damage
+    public void takeDamage(double amount) {
+    this.hp -= (int) amount;
+    if (this.hp < 0) this.hp = 0;
+}
 
     //Monster has been attacked
     public abstract void getAttacked(Monster monster);
