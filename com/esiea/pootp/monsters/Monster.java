@@ -52,6 +52,10 @@ public abstract class Monster{
         return this.defense;
     }
 
+    public String getName(){
+        return this.name;
+    }
+
     public void setDefense(int value){
         this.defense = value;
     }
@@ -70,6 +74,16 @@ public abstract class Monster{
         this.hp -= (int) amount;
         if (this.hp < 0) this.hp = 0;
     }
+
+    // Monster applies state effects at the start of its turn
+    public void applyStateEffects() {
+    if (this.state == State.BURNED) {
+ 
+        double burnDamage = this.attack / 10;
+        this.takeDamage(burnDamage);
+        System.out.println(this.name + " souffre de sa brûlure...");
+    }
+}
 
 
     //Monster has been attacked

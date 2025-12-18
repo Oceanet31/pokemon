@@ -7,7 +7,7 @@ public class LightningMonster extends Monster{
     private double paralizedChance;
     private int paralizedDuration;
 
-    public LightningMonster(String name, int hp, int defense, double attack, int speed, int paralizedChance, int paralizedDuration){
+    public LightningMonster(String name, int hp, int defense, double attack, int speed, double paralizedChance){
         super(name,ElementType.LIGHTNING,hp,defense,attack,speed);
         this.paralizedChance = paralizedChance;
         this.paralizedDuration = paralizedDuration;
@@ -38,7 +38,7 @@ public class LightningMonster extends Monster{
 
     @Override
     public void attack(Monster monster){
-        //peut paraliser si il utilise une attaque "anormale"
+        //peut paraliser s'il utilise une attaque "anormale"
         double damageBase = this.damages(monster);
 
         //Re paralise le monstre en lui ajoutant a nouveau le temps
@@ -47,7 +47,7 @@ public class LightningMonster extends Monster{
                 monster.setEffectDuration(monster.getEffectDuration()+paralizedDuration);
             }
         }
-        
+
         monster.getAttacked(this);
     }
 

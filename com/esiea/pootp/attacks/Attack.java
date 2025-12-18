@@ -17,6 +17,8 @@ public class Attack{
         this.failProbability = failProbability;
     }
 
-    
+    public String getName(){
+        return this.name;
+    }
 
 }

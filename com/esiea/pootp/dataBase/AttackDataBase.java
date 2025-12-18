@@ -19,22 +19,78 @@ public class AttackDataBase {
         this.attacks = new ArrayList<Attack>();
     }
 
-    public void loadAttacksFromFile(File file) throws FileNotFoundException{
+    public void loadAttacksFromFile(File file) throws FileNotFoundException {
 
-        Scanner scanner = new Scanner(file);
+        Scanner scanner = new Scanner(file); // Scanner pour lire le fichier
+        scanner.useLocale(java.util.Locale.US); // Pour lire les nombres à virgule avec un point
+        
+        String name = "";
+        ElementType type = null;
+        int power = 0;
+        int nbUse = 0;
+        double failProbability = 0.0;
 
-        while(scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            String[] parts = line.split(",");
+        while (scanner.hasNext()) { // Tant qu'il y a des lignes à lire
 
-            String name = parts[0];
-            ElementType type = ElementType.valueOf(parts[1].toUpperCase());
-            int nbUse = Integer.parseInt(parts[2]);
-            int power = Integer.parseInt(parts[3]);
-            double failProbability = Double.parseDouble(parts[4]);
+            String word = scanner.next(); // Lire le prochain mot
 
-            Attack attack = new Attack(name, type, nbUse, power, failProbability);
-            attacks.add(attack);
+            switch (word) { // Traiter en fonction du mot lu
+
+                case "Name":
+                    name = scanner.next();
+                    break;
+
+                case "Type":
+
+                    String typeStr = scanner.next().toUpperCase();
+
+                    if (typeStr.equals("ELECTRIC")) {
+
+                        type = ElementType.LIGHTNING;
+
+                    } else if (typeStr.equals("NATURE")) {
+
+                        type = ElementType.NATURE; 
+
+                    } else if (typeStr.equals("EARTH")) {
+
+                        type = ElementType.EARTH; 
+
+                    } else if (typeStr.equals("WATER")) {
+
+                        type = ElementType.WATER; 
+
+                    } else if (typeStr.equals("FIRE")) {
+
+                        type = ElementType.FIRE; 
+
+                    }
+                    break;
+
+                case "Power":
+
+                    power = scanner.nextInt();
+                    break;
+
+                case "NbUse":
+
+                    nbUse = scanner.nextInt();
+                    break;
+
+                case "Fail":
+
+                    failProbability = scanner.nextDouble();
+                    break;
+
+                case "EndAttack":
+
+                    attacks.add(new Attack(name, type, nbUse, power, failProbability));// Création de l'attaque une fois le bloc fini
+                    break;
+
+                default:
+                    // Ignore "Attack" et les autres mots inconnus
+                    break;
+            }
         }
         scanner.close();
     }

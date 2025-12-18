@@ -1,13 +1,13 @@
 Attack
 Name Eclair
-	Type Electric
+	Type LIGHTNING
 	Power 40
 	NbUse 10
 	Fail 0.07
 EndAttack
 Attack
 Name Charge
-	Type Normal
+	Type NATURE
 	Power 35
 	NbUse 15
 	Fail 0.03
