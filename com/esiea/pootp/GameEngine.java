@@ -13,37 +13,8 @@ public class GameEngine {
     }
 
     public void startBattle(){
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("A wild " + enemyMonster.getName() + " appeared!");
-        //Battle loop
+       
+    
 
-        while(playerMonster.getState() != com.esiea.pootp.monsters.State.FELL && enemyMonster.getState() != com.esiea.pootp.monsters.State.FELL){
-
-            System.out.println("Your turn! Choose an action:");
-            System.out.println("1. Attack");
-            System.out.println("2. Run");
-
-            int choice = scanner.nextInt();
-
-            if(choice == 1){
-
-                playerMonster.attack(enemyMonster);
-
-                if(enemyMonster.getState() != com.esiea.pootp.monsters.State.FELL){
-
-                    enemyMonster.attack(playerMonster);
-
-                } else {
-
-                    System.out.println("You defeated the " + enemyMonster.getName() + "!");
-
-                }
-            } else if(choice == 2){
-
-                System.out.println("You ran away!");
-                break;
-            }
-        }
-        scanner.close();
     }
 }
