@@ -15,6 +15,7 @@ public abstract class Monster{
     private State state;
     private int round;
     private int effectDuration;
+    private int startingHp;
 
     public Monster(String name, ElementType element, int hp, int defense, double attack, int speed){
         this.name = name;
@@ -26,6 +27,7 @@ public abstract class Monster{
         this.attack = attack;
         this.speed = speed;
         this.effectDuration = 0;
+        this.startingHp = hp;
     }
 
     //Getters and setters
@@ -37,10 +39,13 @@ public abstract class Monster{
         return this.state;
     }
 
-     public List<Attack> getAttacks(){
+    public List<Attack> getAttacks(){
         return this.attacks;
     }
 
+    public void healFullHP(){
+        this.hp = this.startingHp;
+    }
 
     public void setState(State newState){
         this.state = newState;
