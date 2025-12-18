@@ -15,29 +15,7 @@ public class LightningMonster extends Monster{
         this.paralizedDuration = paralizedDuration;
     }
 
-    @Override
-    //Damages to this monster
-    public double damages(Monster monster){
-        double damage = 0;
-        switch(monster.getElement()){
-            case EARTH :
-                //Faiblesse monster m'inflige 2*damage
-                damage = 2*super.damages(monster);
-                break;
-
-            case WATER :
-                //Force monster m'inflige 0.5*damage
-                damage = 0.5*super.damages(monster);
-                break;
-
-            default :
-                damage = super.damages(monster);
-                break;
-        }
-
-        return damage;
-    }
-
+  
     @Override
     public void attack(Monster monster, Attack attack){
         //peut paraliser s'il utilise une attaque "anormale"
@@ -87,6 +65,9 @@ public class LightningMonster extends Monster{
         }
 
         this.takeDamage(damage); //Apply damage to this monster
+        if(this.getHp() <= 0){
+            this.setState(State.DEAD);
+        }
     }
 
 

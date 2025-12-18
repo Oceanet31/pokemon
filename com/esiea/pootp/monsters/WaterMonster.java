@@ -15,30 +15,6 @@ public class WaterMonster extends Monster{
         this.floodDuration = 0;
     }
 
-
-    @Override
-    //Damages to this monster
-    public double damages(Monster monster){
-        double damage = 0;
-        switch(monster.getElement()){
-            case LIGHTNING :
-                //Faiblesse monster m'inflige 2*damage
-                damage = 2*super.damages(monster);
-                break;
-
-            case FIRE :
-                //Force monster m'inflige 0.5*damage
-                damage = 0.5*super.damages(monster);
-                break;
-
-            default :
-                damage = super.damages(monster);
-                break;
-        }
-
-        return damage;
-    }
-
     //Attack opponent monster
     public void attack(Monster enemy, Attack attack){
 
@@ -69,6 +45,22 @@ public class WaterMonster extends Monster{
 
         double damage = attacker.damages(this); //Calculate damage from attacker
 
+        switch(attacker.getElement()){
+            case LIGHTNING :
+                //Faiblesse monster m'inflige 2*damage
+                damage = 2*super.damages(this);
+                break;
+
+            case FIRE :
+                //Force monster m'inflige 0.5*damage
+                damage = 0.5*super.damages(this);
+                break;
+
+            default :
+                damage = super.damages(this);
+                break;
+        }
+
         //------Special Effects------
         if (isTerrainFlooded() && attacker.getElement() != ElementType.WATER){
 
@@ -81,6 +73,10 @@ public class WaterMonster extends Monster{
         //---------------------------
 
         this.takeDamage(damage); //Apply damage to this monster
+
+        if(this.getHp() <= 0){
+            this.setState(State.DEAD);
+        }
     }
 
     public boolean isTerrainFlooded() {

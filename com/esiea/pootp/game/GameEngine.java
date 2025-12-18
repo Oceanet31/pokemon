@@ -33,12 +33,23 @@ public class GameEngine {
 
             if(choice == 1){
 
-                List<Attack> attacks = playerMonster.getAttacks(); //initialisation de la liste des attaques du monstre du joueur
+                List<Attack> attacks = playerMonster.getAttacks();//initialisation de la liste des attaques du monstre du joueur
                 System.out.println("Choose an attack:");
-                for (Attack attackElement : attacks)               //affichage des attaques disponibles
-                {
-                    System.out.println((attacks.indexOf(attackElement) + 1) + ". " + attackElement.getName());
-                }
+
+                if(attacks.isEmpty()){
+                   
+                    System.out.println("No attacks available!");
+                    System.out.println(playerMonster.getName() + " has no attacks, he will fight bare-handed!");
+                    playerMonster.attack(enemyMonster, null);
+
+                    
+                } else{    
+                    for (Attack attackElement : attacks){ //affichage des attaques disponibles
+                        System.out.println((attacks.indexOf(attackElement) + 1) + ". " + attackElement.getName());
+                    }
+                    int attackChoice = scanner.nextInt() - 1;                  
+                    playerMonster.attack(enemyMonster, attacks.get(attackChoice));                     
+                }   
 
                 int attackChoice = scanner.nextInt() - 1;                  
                 
@@ -53,5 +64,4 @@ public class GameEngine {
             }
         } 
     }
-
 }

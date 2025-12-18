@@ -67,6 +67,10 @@ public class EarthMonster extends Monster{
         //---------------------------
 
         this.takeDamage(damage); //Apply damage to this monster
+        
+        if(this.getHp() <= 0){
+            this.setState(State.DEAD);
+        }
     }
 
 

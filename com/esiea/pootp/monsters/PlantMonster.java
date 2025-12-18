@@ -39,6 +39,10 @@ public class PlantMonster extends NatureMonster{
         }
 
         this.takeDamage(damage); //Apply damage to this monster
+        
+        if(this.getHp() <= 0){
+            this.setState(State.DEAD);
+        }
     }
 
 
