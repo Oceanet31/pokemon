@@ -1,7 +1,6 @@
 package com.esiea.pootp.monsters;
 
 import com.esiea.pootp.attacks.Attack;
-import com.esiea.pootp.monsters.WaterMonster;
 
 public class BugMonster extends NatureMonster{
 
