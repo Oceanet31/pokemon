@@ -1,5 +1,7 @@
 package com.esiea.pootp.monsters;
 
+import com.esiea.pootp.attacks.Attack;
+
 public class WaterMonster extends Monster{
 
     private double floodChance;
@@ -38,7 +40,7 @@ public class WaterMonster extends Monster{
     }
 
     //Attack opponent monster
-    public void attack(Monster enemy){
+    public void attack(Monster enemy, Attack attack){
 
         double damageBase = this.damages(enemy);
 
@@ -60,10 +62,10 @@ public class WaterMonster extends Monster{
             }
         }
 
-        enemy.getAttacked(this);
+        enemy.getAttacked(this, attack);
     }
 
-    public void getAttacked(Monster attacker){
+    public void getAttacked(Monster attacker, Attack attack){
 
         double damage = attacker.damages(this); //Calculate damage from attacker
 

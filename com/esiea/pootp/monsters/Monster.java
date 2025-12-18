@@ -2,6 +2,7 @@ package com.esiea.pootp.monsters;
 
 import com.esiea.pootp.attacks.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Monster{
     private ElementType element;
@@ -35,6 +36,11 @@ public abstract class Monster{
     public State getState(){
         return this.state;
     }
+
+     public List<Attack> getAttacks(){
+        return this.attacks;
+    }
+
 
     public void setState(State newState){
         this.state = newState;
@@ -98,10 +104,10 @@ public abstract class Monster{
 
 
     //Monster has been attacked
-    public abstract void getAttacked(Monster monster);
+    public abstract void getAttacked(Monster monster, Attack attack);
 
 
     //opponent monster has been attacked
-    public abstract void attack(Monster monster);
+    public abstract void attack(Monster monster, Attack attack);
 
 }

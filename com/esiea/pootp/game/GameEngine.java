@@ -1,7 +1,10 @@
 package com.esiea.pootp.game;
 
+import com.esiea.pootp.attacks.Attack;
 import com.esiea.pootp.monsters.Monster;
 import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
 
 public class GameEngine {
     private Monster playerMonster;
@@ -14,36 +17,41 @@ public class GameEngine {
 
     public void startBattle(){
         Scanner scanner = new Scanner(System.in);
-        System.out.println("A wild " + enemyMonster.getName() + " appeared!");
-        //Battle loop
+        System.out.println("A wild " + enemyMonster.getName() + " appears!");
+        System.out.println("Go " + playerMonster.getName() + "!");
 
-        while(playerMonster.getState() != com.esiea.pootp.monsters.State.FELL && enemyMonster.getState() != com.esiea.pootp.monsters.State.FELL){
+        System.out.println("Battle Start!");
 
-            System.out.println("Your turn! Choose an action:");
+        while(true){
+            System.out.println("Choose your action:");
             System.out.println("1. Attack");
-            System.out.println("2. Run");
-
+            System.out.println("2. Inventory");
+            System.out.println("3. Pokemon");
+            System.out.println("4. Flee");
+            System.out.print("Enter choice: ");
             int choice = scanner.nextInt();
 
             if(choice == 1){
 
-                playerMonster.attack(enemyMonster);
-
-                if(enemyMonster.getState() != com.esiea.pootp.monsters.State.FELL){
-
-                    enemyMonster.attack(playerMonster);
-
-                } else {
-
-                    System.out.println("You defeated the " + enemyMonster.getName() + "!");
-
+                List<Attack> attacks = playerMonster.getAttacks(); //initialisation de la liste des attaques du monstre du joueur
+                System.out.println("Choose an attack:");
+                for (Attack attackElement : attacks)               //affichage des attaques disponibles
+                {
+                    System.out.println((attacks.indexOf(attackElement) + 1) + ". " + attackElement.getName());
                 }
-            } else if(choice == 2){
 
-                System.out.println("You ran away!");
-                break;
+                int attackChoice = scanner.nextInt() - 1;                  
+                
+                playerMonster.attack(enemyMonster, attacks.get(attackChoice)); //le monstre du joueur attaque le monstre adverse avec l'attaque choisie
+
+            } else if(choice == 2){
+                System.out.println("You have no items!");                
+            } else if(choice == 3){
+                System.out.println("You have no other Pokemon!");
+            } else if(choice == 4){
+                System.out.println("You fled the battle!");
             }
-        }
-        scanner.close();
+        } 
     }
+
 }

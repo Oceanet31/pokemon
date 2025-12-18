@@ -2,6 +2,8 @@ package com.esiea.pootp.monsters;
 
 import java.util.Random;
 
+import com.esiea.pootp.attacks.Attack;
+
 public class EarthMonster extends Monster{
     
     private double fleeingChance;
@@ -37,7 +39,7 @@ public class EarthMonster extends Monster{
     }
 
     @Override
-    public void attack(Monster monster){
+    public void attack(Monster monster, Attack attack){
         //peut paraliser s'il utilise une attaque "anormale"
         double damageBase = this.damages(monster);
 
@@ -59,12 +61,12 @@ public class EarthMonster extends Monster{
         }
 
 
-        monster.getAttacked(this);
+        monster.getAttacked(this, attack);
     }
 
 
     @Override
-    public void getAttacked(Monster attacker){
+    public void getAttacked(Monster attacker, Attack attack){
         double damage = attacker.damages(this); //Calculate damage from attacker
 
 

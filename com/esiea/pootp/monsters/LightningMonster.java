@@ -2,6 +2,8 @@ package com.esiea.pootp.monsters;
 
 import java.util.Random;
 
+import com.esiea.pootp.attacks.Attack;
+
 public class LightningMonster extends Monster{
     
     private double paralizedChance;
@@ -37,7 +39,7 @@ public class LightningMonster extends Monster{
     }
 
     @Override
-    public void attack(Monster monster){
+    public void attack(Monster monster, Attack attack){
         //peut paraliser s'il utilise une attaque "anormale"
         double damageBase = this.damages(monster);
 
@@ -48,12 +50,12 @@ public class LightningMonster extends Monster{
             }
         }
 
-        monster.getAttacked(this);
+        monster.getAttacked(this, attack);
     }
 
 
     @Override
-    public void getAttacked(Monster monster){
+    public void getAttacked(Monster monster, Attack attack){
         //Chances to get unparalized
         //TODO
 
