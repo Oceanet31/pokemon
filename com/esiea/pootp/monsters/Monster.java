@@ -13,6 +13,7 @@ public abstract class Monster{
     private int speed;
     private State state;
     private int round;
+    private int effectDuration;
 
     public Monster(String name, ElementType element, int hp, int defense, double attack, int speed){
         this.name = name;
@@ -23,6 +24,7 @@ public abstract class Monster{
         this.defense = defense;
         this.attack = attack;
         this.speed = speed;
+        this.effectDuration = 0;
     }
 
     //Getters and setters
@@ -38,6 +40,22 @@ public abstract class Monster{
         this.state = newState;
     }
 
+    public int getEffectDuration(){
+        return this.effectDuration;
+    }
+
+    public void setEffectDuration(int value){
+        this.effectDuration = value;
+    }
+
+    public int getDefense(){
+        return this.defense;
+    }
+
+    public void setDefense(int value){
+        this.defense = value;
+    }
+
     //Override in all monster classes
     public double damages(Monster monster){
         double coef = 0.85 + (0.15)*Math.random();
@@ -49,9 +67,10 @@ public abstract class Monster{
 
     //Monster takes damage
     public void takeDamage(double amount) {
-    this.hp -= (int) amount;
-    if (this.hp < 0) this.hp = 0;
+        this.hp -= (int) amount;
+        if (this.hp < 0) this.hp = 0;
     }
+
 
     //Monster has been attacked
     public abstract void getAttacked(Monster monster);

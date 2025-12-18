@@ -1,2 +1,14 @@
-Flop,WATER,10,20,0.5
-Charge,FIRE,15,30,0.2
+Attack
+Name Eclair
+	Type Electric
+	Power 40
+	NbUse 10
+	Fail 0.07
+EndAttack
+Attack
+Name Charge
+	Type Normal
+	Power 35
+	NbUse 15
+	Fail 0.03
+EndAttack
