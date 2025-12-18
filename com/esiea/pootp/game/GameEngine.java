@@ -1,4 +1,4 @@
-package com.esiea.pootp;
+package com.esiea.pootp.game;
 
 import com.esiea.pootp.monsters.Monster;
 import java.util.Scanner;

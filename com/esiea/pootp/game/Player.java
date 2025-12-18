@@ -1,4 +1,4 @@
-package com.esiea.pootp;
+package com.esiea.pootp.game;
 
 import java.util.ArrayList;
 

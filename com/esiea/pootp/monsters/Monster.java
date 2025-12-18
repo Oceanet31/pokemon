@@ -60,6 +60,14 @@ public abstract class Monster{
         this.defense = value;
     }
 
+    public int getHp(){
+        return this.hp;
+    }
+
+    public void setHp(int value){
+        this.hp = value;
+    }
+
     //Override in all monster classes
     public double damages(Monster monster){
         double coef = 0.85 + (0.15)*Math.random();
@@ -77,11 +85,14 @@ public abstract class Monster{
 
     // Monster applies state effects at the start of its turn
     public void applyStateEffects() {
-    if (this.state == State.BURNED) {
+    if (this.state == State.BURNED && this.state == State.POISONED) {
  
         double burnDamage = this.attack / 10;
         this.takeDamage(burnDamage);
-        System.out.println(this.name + " souffre de sa brûlure...");
+        if(this.state == State.BURNED) System.out.println(this.name + " souffre de sa brûlure...");
+
+        if(this.state == State.POISONED) System.out.println(this.name + " souffre de son empoissonnement...");
+
     }
 }
 
