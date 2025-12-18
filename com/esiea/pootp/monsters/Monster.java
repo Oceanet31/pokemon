@@ -67,6 +67,23 @@ public abstract class Monster{
         return this.name;
     }
 
+    public int getSpeed(){
+        return this.speed;
+    }
+
+    public double getAttack(){
+        return this.attack;
+    }
+
+
+    public void setAttack(double value){
+        this.attack = value;
+    }
+
+    public void setSpeed(int value){
+        this.speed = value;
+    }
+
     public void setDefense(int value){
         this.defense = value;
     }
@@ -76,14 +93,16 @@ public abstract class Monster{
     }
 
     public void setHp(int value){
-        this.hp = value;
+        if(value >= this.startingHp) {
+            this.hp = this.startingHp;
+        } else {
+            this.hp = value;
+        }
     }
 
     //Override in all monster classes
     public double damages(Monster monster){
         double coef = 0.85 + (0.15)*Math.random();
-        
-
         double damage = 20*(this.attack/monster.defense)*coef;
 
         return damage;
@@ -94,13 +113,9 @@ public abstract class Monster{
         double damage = 0;
 
         if(power == null){
-
             damage = 20*(this.attack/monster.defense)*coef;
-
         } else if (power != null){
-
             damage = (((11*this.attack*power.getPower())/(25*monster.defense))+2)*coef;
-
         }
             
         return damage;
