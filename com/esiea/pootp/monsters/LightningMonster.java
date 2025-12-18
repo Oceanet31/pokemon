@@ -81,7 +81,6 @@ public class LightningMonster extends Monster{
             Random r = new Random();
             int chance = r.nextInt(4);
             if(chance != 3){
-                //Fail
                 return;
             }
         }
