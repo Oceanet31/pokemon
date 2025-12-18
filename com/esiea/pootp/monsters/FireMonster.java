@@ -1,5 +1,7 @@
 package com.esiea.pootp.monsters;
 
+import com.esiea.pootp.attacks.Attack;
+
 public class FireMonster extends Monster{
 
     private double burningChance;
@@ -33,7 +35,7 @@ public class FireMonster extends Monster{
     }
 
     //Attack opponent monster
-    public void attack(Monster enemy){
+    public void attack(Monster enemy, Attack attack){
 
         double damageBase = this.damages(enemy);
 
@@ -45,10 +47,10 @@ public class FireMonster extends Monster{
                 enemy.setState(State.BURNED); // Appliquer l'état BRÛLÉ
             }
         }
-        enemy.getAttacked(this);
+        enemy.getAttacked(this, attack);
     }
 
-    public void getAttacked(Monster attacker){
+    public void getAttacked(Monster attacker, Attack attack){
 
         double damage = attacker.damages(this); //Calculate damage from attacker
 

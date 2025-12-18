@@ -1,6 +1,8 @@
 package com.esiea.pootp;
 import com.esiea.pootp.dataBase.AttackDataBase;
 import com.esiea.pootp.dataBase.MonsterDataBase;
+import com.esiea.pootp.game.Player;
+import com.esiea.pootp.game.GameEngine;
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -19,6 +21,10 @@ public class PokemonApp {
         adb.getAttacks().forEach(attack -> { System.out.println("Attack loaded: " + attack.getName()); });
         mdb.getMonsters().forEach(monster -> { System.out.println("Monster loaded: " + monster.getName()); });
 
-        
+        Player player1 = new Player("Ash");
+        Player player2 = new Player("Misty");
+
+        GameEngine game = new GameEngine(mdb.getMonsters().get(0), mdb.getMonsters().get(1));
+        game.startBattle();
     }
 }
