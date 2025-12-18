@@ -21,4 +21,26 @@ public class Attack{
         return this.name;
     }
 
+    public ElementType getType(){
+        return this.type;
+    }
+
+    public int getNbUse(){
+        return this.nbUse;
+    }
+
+    public int getPower(){
+        return this.power;
+    }
+
+    public double getFailProbability(){
+        return this.failProbability;
+    }
+
+    public void AttackUsed(){
+        if(this.nbUse > 0){
+            this.nbUse -= 1;
+        }
+    }
+
 }
