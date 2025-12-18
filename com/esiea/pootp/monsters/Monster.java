@@ -77,10 +77,29 @@ public abstract class Monster{
     //Override in all monster classes
     public double damages(Monster monster){
         double coef = 0.85 + (0.15)*Math.random();
+        
 
         double damage = 20*(this.attack/monster.defense)*coef;
 
         return damage;
+    }
+
+     public double damages(Monster monster, Attack power){
+        double coef = 0.85 + (0.15)*Math.random();
+        double damage = 0;
+
+        if(power == null){
+
+            damage = 20*(this.attack/monster.defense)*coef;
+
+        } else if (power != null){
+
+            damage = (((11*this.attack*power.getPower())/(25*monster.defense))+2)*coef;
+
+        }
+            
+        return damage;
+
     }
 
     //Monster takes damage
