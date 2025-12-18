@@ -56,8 +56,25 @@ public class LightningMonster extends Monster{
 
     @Override
     public void getAttacked(Monster monster, Attack attack){
+
+        double damage = monster.damages(this); //Calculate damage from attacker
+
         //Chances to get unparalized
-        //TODO
+        switch(monster.getElement()){
+            case EARTH :
+                //Faiblesse monster m'inflige 2*damage
+                damage = 2*super.damages(this);
+                break;
+
+            case WATER :
+                //Force monster m'inflige 0.5*damage
+                damage = 0.5*super.damages(this);
+                break;
+
+            default :
+                damage = super.damages(this);
+                break;
+        }
 
         if(monster.getState() == State.PARALIZED){
             //if monster is paralized he has 1/4 chance to success
@@ -68,7 +85,7 @@ public class LightningMonster extends Monster{
                 return;
             }
         }
-        double damage = monster.damages(this); //Calculate damage from attacker
+
         this.takeDamage(damage); //Apply damage to this monster
     }
 

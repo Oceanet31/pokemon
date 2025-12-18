@@ -21,6 +21,17 @@ public class PokemonApp {
         adb.getAttacks().forEach(attack -> { System.out.println("Attack loaded: " + attack.getName()); });
         mdb.getMonsters().forEach(monster -> { System.out.println("Monster loaded: " + monster.getName()); });
 
+        // Assign all attacks to each monster for demo purposes (replace with logic as needed)
+        mdb.getMonsters().forEach(monster -> {
+            try {
+                java.lang.reflect.Field attacksField = monster.getClass().getSuperclass().getDeclaredField("attacks");
+                attacksField.setAccessible(true);
+                attacksField.set(monster, new java.util.ArrayList<>(adb.getAttacks()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
         Player player1 = new Player("Ash");
         Player player2 = new Player("Misty");
 

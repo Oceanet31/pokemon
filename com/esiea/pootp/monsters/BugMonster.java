@@ -1,5 +1,6 @@
 package com.esiea.pootp.monsters;
 
+import com.esiea.pootp.attacks.Attack;
 import com.esiea.pootp.monsters.WaterMonster;
 
 public class BugMonster extends NatureMonster{
@@ -9,7 +10,7 @@ public class BugMonster extends NatureMonster{
     }
 
 
-    public void attack(Monster target){
+    public void attack(Monster target, Attack attack){
         this.recoverHealth(target);
 
         if(Math.random() >= 0.66){
@@ -22,13 +23,29 @@ public class BugMonster extends NatureMonster{
             }
         }
         target.applyStateEffects();
-        target.getAttacked(this);
+        target.getAttacked(this, attack);
     }
 
 
-    public void getAttacked(Monster attacker){
+    public void getAttacked(Monster attacker, Attack attack){
 
         double damage = attacker.damages(this); //Calculate damage from attacker
+
+         switch(attacker.getElement()){
+            case FIRE :
+                //Faiblesse monster m'inflige 2*damage
+                damage = 2*super.damages(this);
+                break;
+
+            case EARTH :
+                //Force monster m'inflige 0.5*damage
+                damage = 0.5*super.damages(this);
+                break;
+
+            default :
+                damage = super.damages(this);
+                break;
+        }
 
         this.takeDamage(damage); //Apply damage to this monster
     }

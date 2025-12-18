@@ -10,29 +10,7 @@ public class FireMonster extends Monster{
         super(name,ElementType.FIRE,hp,defense,attack,speed);
         this.burningChance = burningChance;
     }
-
-    @Override
-    //Damages to this monster
-    public double damages(Monster monster){
-        double damage = 0;
-        switch(monster.getElement()){
-            case WATER :
-                //Faiblesse monster m'inflige 2*damage
-                damage = 2*super.damages(monster);
-                break;
-
-            case NATURE :
-                //Force monster m'inflige 0.5*damage
-                damage = 0.5*super.damages(monster);
-                break;
-
-            default :
-                damage = super.damages(monster);
-                break;
-        }
-
-        return damage;
-    }
+  
 
     //Attack opponent monster
     public void attack(Monster enemy, Attack attack){
@@ -54,9 +32,22 @@ public class FireMonster extends Monster{
 
         double damage = attacker.damages(this); //Calculate damage from attacker
 
-        //------Special Effects------
+          switch(attacker.getElement()){
+            case WATER :
+                //Faiblesse monster m'inflige 2*damage
+                damage = 2*super.damages(this);
+                break;
 
-        //---------------------------
+            case NATURE :
+                //Force monster m'inflige 0.5*damage
+                damage = 0.5*super.damages(this);
+                break;
+
+            default :
+                damage = super.damages(this);
+                break;
+        }
+
 
         this.takeDamage(damage); //Apply damage to this monster
     }

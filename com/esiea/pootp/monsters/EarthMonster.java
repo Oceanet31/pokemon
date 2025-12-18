@@ -15,28 +15,6 @@ public class EarthMonster extends Monster{
         this.fleeingDuration = 0;
     }
 
-    @Override
-    //Damages to this monster
-    public double damages(Monster monster){
-        double damage = 0;
-        switch(monster.getElement()){
-            case NATURE :
-                //Faiblesse monster m'inflige 2*damage
-                damage = 2*super.damages(monster);
-                break;
-
-            case LIGHTNING :
-                //Force monster m'inflige 0.5*damage
-                damage = 0.5*super.damages(monster);
-                break;
-
-            default :
-                damage = super.damages(monster);
-                break;
-        }
-
-        return damage;
-    }
 
     @Override
     public void attack(Monster monster, Attack attack){
@@ -71,8 +49,20 @@ public class EarthMonster extends Monster{
 
 
         //------Special Effects------
-        if(isProtected()){
-          damage = damage / 2;
+         switch(attacker.getElement()){
+            case NATURE :
+                //Faiblesse monster m'inflige 2*damage
+                damage = 2*super.damages(this);
+                break;
+
+            case LIGHTNING :
+                //Force monster m'inflige 0.5*damage
+                damage = 0.5*super.damages(this);
+                break;
+
+            default :
+                damage = super.damages(this);
+                break;
         }
         //---------------------------
 
