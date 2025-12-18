@@ -51,7 +51,7 @@ public abstract class Monster{
     public void takeDamage(double amount) {
     this.hp -= (int) amount;
     if (this.hp < 0) this.hp = 0;
-}
+    }
 
     //Monster has been attacked
     public abstract void getAttacked(Monster monster);

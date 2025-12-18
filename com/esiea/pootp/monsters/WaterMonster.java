@@ -41,14 +41,6 @@ public class WaterMonster extends Monster{
     public void attack(Monster enemy){
 
         double damageBase = this.damages(enemy);
-        
-        if (ElementType.FIRE == enemy.getElement()){
-            //Fort contre le feu x1.25
-            damageBase = 2*damageBase;
-        } else if (ElementType.LIGHTNING == enemy.getElement()){
-            //Faible contre la foudre x0.5
-            damageBase = 0.5*damageBase;
-        }
 
         //check si le terrain est inondé
         if (!isTerrainFlooded()){
@@ -79,25 +71,14 @@ public class WaterMonster extends Monster{
         if (isTerrainFlooded() && attacker.getElement() != ElementType.WATER){
 
            if(Math.random() < this.fallChance){                 //20% de chance de rater son attaque
-                attacker.takeDamage(attacker.attack() / 4);     //L'attaquant prend 25% des dégats qu'il voulait infliger
+                attacker.takeDamage(damage / 4);     //L'attaquant prend 25% des dégats qu'il voulait infliger
                 damage = 0;  
            }
               floodDuration--;             
         }
         //---------------------------
 
-        //---------Faiblesse---------
-        if (damage > 0) {
-
-            if (attacker.getElement() == ElementType.LIGHTNING) {
-                damage *= 2;
-            } else if (attacker.getElement() == ElementType.FIRE) {
-                damage *= 0.5;
-            }
-        }
-        //---------------------------
-
-        this.takes(damage); //Apply damage to this monster
+        this.takeDamage(damage); //Apply damage to this monster
     }
 
     public boolean isTerrainFlooded() {
