@@ -14,6 +14,11 @@ public class Potion extends Item{
         this.type = type;
     }
 
+    @Override
+    public String getName(){
+        return this.name;
+    }
+
     public int getPower(){
         return this.power;
     }
@@ -22,31 +27,38 @@ public class Potion extends Item{
         return this.type;
     }
 
-    public void usePotion(Monster monster){
+    @Override
+    public void use(Monster monster){
         switch(this.type){
             case HEAL:
                 monster.healFullHP();
+                System.out.println(monster.getName() + " has been fully healed.");
                 break;
 
             case REVIVE:
                 monster.healFullHP();
                 monster.setState(State.NORMAL);
+                System.out.println(monster.getName() + " has been revived to full health and is now in NORMAL state.");
                 break;
 
             case CURE:
                 monster.setHp(monster.getHp() + this.power);
+                System.out.println(monster.getName() + " has been cured with " + this.power + " HP.");
                 break;
 
             case BOOST_ATTACK:
                 monster.setAttack(monster.getAttack() + this.power);
+                System.out.println(monster.getName() + " has been boosted with " + this.power + " attack.");
                 break;
 
             case BOOST_DEFENSE:
                 monster.setDefense(monster.getDefense() + this.power);
+                System.out.println(monster.getName() + " has been boosted with " + this.power + " defense.");
                 break;
 
             case BOOST_SPEED:
                 monster.setSpeed(monster.getSpeed() + this.power);
+                System.out.println(monster.getName() + " has been boosted with " + this.power + " speed.");
                 break;
 
             default:

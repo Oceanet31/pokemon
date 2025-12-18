@@ -10,7 +10,14 @@ public class Medicament extends Item {
         this.name = name;
     }
 
-    public void useMedicament(Monster monster) {
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+
+    @Override
+    public void use(Monster monster) {
         monster.setState(State.NORMAL);
         System.out.println(monster.getName() + " is now in NORMAL state.");
     }

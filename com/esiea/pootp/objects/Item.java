@@ -1,3 +1,9 @@
 package com.esiea.pootp.objects;
 
-public abstract class Item{}
+import com.esiea.pootp.monsters.Monster;
+
+public abstract class Item{
+    abstract public void use(Monster monster);
+
+    abstract public String getName();
+}
