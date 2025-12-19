@@ -47,4 +47,22 @@ public class Player {
             System.out.println("Item not available in inventory.");
         }
     }
+
+    public boolean hasLost() {
+        for(Monster monster : this.team) {
+            if(monster.getState() != com.esiea.pootp.monsters.State.DEAD) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public Monster getActiveMonster() {
+        for(Monster monster : this.team) {
+            if(monster.getState() != com.esiea.pootp.monsters.State.DEAD) {
+                return monster;
+            }
+        }
+        return null; // All monsters are dead
+    }
 }

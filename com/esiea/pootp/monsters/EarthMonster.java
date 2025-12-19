@@ -77,4 +77,8 @@ public class EarthMonster extends Monster{
     public boolean isProtected() {
         return fleeingDuration > 0;
     }
+
+    public double getFleeingChance() {
+    return this.fleeingChance;
+    }
 }

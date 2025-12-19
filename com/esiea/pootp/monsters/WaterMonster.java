@@ -82,4 +82,12 @@ public class WaterMonster extends Monster{
     public boolean isTerrainFlooded() {
         return floodDuration > 0;
     }
+
+    public double getFloodChance() {
+        return this.floodChance;
+    }
+    public double getFallChance() {
+        return this.fallChance;
+    }
+    
 }

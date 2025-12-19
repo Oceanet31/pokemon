@@ -55,4 +55,8 @@ public class FireMonster extends Monster{
             this.setState(State.DEAD);
         }
     }
+
+    public double getBurningChance() {
+    return this.burningChance;
+}
 }

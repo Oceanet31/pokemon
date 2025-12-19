@@ -69,5 +69,7 @@ public class LightningMonster extends Monster{
         }
     }
 
-
+    public double getParalizedChance() {
+    return this.paralizedChance;
+    }
 }

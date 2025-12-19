@@ -7,8 +7,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-
-
 public class ItemDataBase {
     private ArrayList<Item> items;
 
@@ -17,26 +15,25 @@ public class ItemDataBase {
     }
 
     public void loadItemsFromFile(File file) throws FileNotFoundException {
-        Scanner scanner = new Scanner(file); // Scanner pour lire le fichier
-        scanner.useLocale(java.util.Locale.US); // Pour lire les nombres à virgule avec un point
+        Scanner scanner = new Scanner(file); 
+        scanner.useLocale(java.util.Locale.US); 
         
+        // Variables temporaires
         String name = "";
         PotionType type = null;
         int power = 0;
         State curedState = null;
 
-        while (scanner.hasNext()) { // Tant qu'il y a des lignes à lire
+        while (scanner.hasNext()) { // Tant qu'il y a des données
+            String section = scanner.next(); // Lit le type d'objet (Medicament ou Potion)
 
-            String word = scanner.next(); // Lire le prochain mot
-
-            //On recupere toutes infos de l'item en fonction de sa nature
-            switch (word) { 
+            switch (section) { 
 
                 case "Medicament":
-                    word = scanner.next();
-                    //Fabrication du medicament
-                    while (!word.equals("EndMedicament")) {
-                        switch (word) {
+                    String tokenMed = scanner.next();
+                    
+                    while (!tokenMed.equals("EndMedicament")) {
+                        switch (tokenMed) {
                             case "Name":
                                 name = scanner.next();
                                 break;
@@ -45,17 +42,27 @@ public class ItemDataBase {
                                 curedState = State.valueOf(stateStr);
                                 break;
                         }
+                        tokenMed = scanner.next();
                     }
+                    
+                    // On crée l'objet une fois sorti de la boucle de lecture des attributs
                     Medicament medicament = new Medicament(name, curedState);
                     this.items.add(medicament);
                     break;
 
                 case "Potion":
-                    //Fabrication de la potion
-                    while (!word.equals("EndPotion")) {
-                        switch (word) {
+                    String tokenPot = scanner.next();
+                    
+                    while (!tokenPot.equals("EndPotion")) {
+                        switch (tokenPot) {
                             case "Name":
-                                name = scanner.next();
+                                name = scanner.next(); 
+
+                                if(name.equals("Berry")) {
+                                    String suite = scanner.next(); 
+                                    if(suite.equals("Juice")) name = "Berry Juice";
+                                }
+
                                 break;
                             case "Type":
                                 String typeStr = scanner.next().toUpperCase();
@@ -66,12 +73,14 @@ public class ItemDataBase {
                                 power = scanner.nextInt();
                                 break;
                         }
+                        // Avance au mot suivant
+                        tokenPot = scanner.next();
                     }
+                    
                     Potion potion = new Potion(name, power, type);
                     this.items.add(potion);
                     break;
             }
-                word = scanner.next();
         }
         scanner.close();
     }
