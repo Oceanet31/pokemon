@@ -9,7 +9,7 @@ public class LightningMonster extends Monster{
     private double paralizedChance;
     private int paralizedDuration;
 
-    public LightningMonster(String name, int hp, int defense, double attack, int speed, double paralizedChance){
+    public LightningMonster(String name, int hp, int defense, double attack, int speed, double paralizedChance, int paralizedDuration){
         super(name,ElementType.LIGHTNING,hp,defense,attack,speed);
         this.paralizedChance = paralizedChance;
         this.paralizedDuration = paralizedDuration;

@@ -39,16 +39,12 @@ public abstract class Monster{
         return this.state;
     }
 
-    public List<Attack> getAttacks(){
-        return this.attacks;
-    }
-
-    public void healFullHP(){
-        this.hp = this.startingHp;
-    }
-
     public void setState(State newState){
         this.state = newState;
+    }
+
+    public ArrayList<Attack> getAttacks(){
+        return this.attacks;
     }
 
     public int getEffectDuration(){
@@ -57,6 +53,10 @@ public abstract class Monster{
 
     public void setEffectDuration(int value){
         this.effectDuration = value;
+    }
+
+    public void healFullHP(){
+        this.hp = this.startingHp;
     }
 
     public int getDefense(){
