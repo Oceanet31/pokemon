@@ -1,0 +1,9 @@
+Medicament
+    Name Antidote
+    Type POISONED
+EndMedicament
+Potion
+    Name Berry Juice
+    Type Cure
+    Power 20
+EndPotion

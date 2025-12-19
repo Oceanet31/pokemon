@@ -5,9 +5,11 @@ import com.esiea.pootp.monsters.State;
 
 public class Medicament extends Item {
     private String name;
+    private State curedState;
 
-    public Medicament(String name) {
+    public Medicament(String name, State curedState) {
         this.name = name;
+        this.curedState = curedState;
     }
 
     @Override

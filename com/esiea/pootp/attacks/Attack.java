@@ -37,7 +37,7 @@ public class Attack{
         return this.failProbability;
     }
 
-    public void AttackUsed(){
+    public void attackUsed(){
         if(this.nbUse > 0){
             this.nbUse -= 1;
         }
