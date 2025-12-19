@@ -14,7 +14,9 @@ public class PlantMonster extends NatureMonster{
 
         //a la fin de l'attaque
         if(Math.random() >= 0.8){
-            this.setState(State.NORMAL);
+            if (this.getState() != State.NORMAL && this.getState() != State.DEAD) {
+                this.setState(State.NORMAL);
+            }
         }
     }
 

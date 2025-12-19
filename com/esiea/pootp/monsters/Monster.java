@@ -16,6 +16,10 @@ public abstract class Monster{
     private int round;
     private int effectDuration;
     private int startingHp;
+    private String evolutionName;
+    private int level = 1;
+    private int xp = 0;
+    private int xpToNextLevel = 100;
 
     public Monster(String name, ElementType element, int hp, int defense, double attack, int speed){
         this.name = name;
@@ -75,6 +79,17 @@ public abstract class Monster{
         return this.attack;
     }
 
+    public int getLevel(){ 
+        return level; 
+    }
+
+    public int getXp(){ 
+        return xp; 
+    }
+
+    public int getXpToNextLevel(){ 
+        return xpToNextLevel; 
+    }
 
     public void setAttack(double value){
         this.attack = value;
@@ -98,6 +113,18 @@ public abstract class Monster{
         } else {
             this.hp = value;
         }
+    }
+
+    public int getStartingHp() {
+        return this.startingHp;
+    }
+
+    public void setEvolutionName(String name) {
+    this.evolutionName = name;
+    }
+
+    public String getEvolutionName() {
+        return this.evolutionName;
     }
 
     //Override in all monster classes
@@ -130,16 +157,62 @@ public abstract class Monster{
 
     // Monster applies state effects at the start of its turn
     public void applyStateEffects() {
-    if (this.state == State.BURNED && this.state == State.POISONED) {
- 
-        double burnDamage = this.attack / 10;
-        this.takeDamage(burnDamage);
-        if(this.state == State.BURNED) System.out.println(this.name + " souffre de sa brûlure...");
+        if (this.state == State.BURNED && this.state == State.POISONED) {
+    
+            double burnDamage = this.attack / 10;
+            this.takeDamage(burnDamage);
+            if(this.state == State.BURNED) System.out.println(this.name + " souffre de sa brûlure...");
 
-        if(this.state == State.POISONED) System.out.println(this.name + " souffre de son empoissonnement...");
+            if(this.state == State.POISONED) System.out.println(this.name + " souffre de son empoissonnement...");
 
+        }
     }
-}
+
+    public void gainXp(int amount) { //Méthode pour gagner de l'expérience
+        this.xp += amount;
+        System.out.println(this.name + " gagne " + amount + " points d'expérience !");
+
+        // Boucle while au cas où on gagne assez d'XP pour passer plusieurs niveaux d'un coup
+        while (this.xp >= this.xpToNextLevel) {
+            levelUp();
+        }
+    }
+
+    private void levelUp() { //Méthode pour gérer le passage au niveau supérieur
+        this.level++;
+        this.xp -= this.xpToNextLevel; // On garde le surplus d'XP
+        
+        // La courbe d'XP devient plus dure (prochain niveau demande +20% d'XP)
+        this.xpToNextLevel = (int)(this.xpToNextLevel * 1.2);
+
+        System.out.println("\n " + this.name + " passe au niveau " + this.level + " !");
+
+        // Augmentation des statistiques (+10% par niveau)
+        increaseStats(1.10);
+        
+        // Soin complet gratuit au passage de niveau
+        this.healFullHP();
+        
+    }
+
+    private void increaseStats(double multiplier) { //Méthode pour augmenter les stats du monstre
+        // PV Max augmentent
+        int oldMaxHp = this.startingHp;
+        this.startingHp = (int)(this.startingHp * multiplier);
+        
+        // Attaque augmente
+        this.attack = this.attack * multiplier;
+        
+        // Défense augmente
+        this.defense = (int)(this.defense * multiplier);
+        
+        // Vitesse augmente
+        this.speed = (int)(this.speed * multiplier);
+
+        System.out.println("   PV Max: " + oldMaxHp + " -> " + this.startingHp);
+        System.out.println("   Attaque: " + String.format("%.1f", this.attack));
+        System.out.println("   Défense: " + this.defense);
+    }
 
 
     //Monster has been attacked

@@ -6,9 +6,11 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+
 public class MonsterDataBase {
 
     private ArrayList<Monster> monsters;
+    
 
     public MonsterDataBase() {
         this.monsters = new ArrayList<Monster>();
@@ -28,6 +30,7 @@ public class MonsterDataBase {
         ElementType type = null;
         int hp = 0, speed = 0, defense = 0;
         double attack = 0;
+        String evolutionName = null;
 
         double paralizedChance = 0, floodChance = 0, fallChance = 0, burningChance = 0, fleeingChance = 0;
 
@@ -66,7 +69,7 @@ public class MonsterDataBase {
 
                         type = ElementType.FIRE; 
 
-                    }
+                    } 
                     break;
 
                 case "HP":
@@ -103,6 +106,19 @@ public class MonsterDataBase {
 
                     fallChance = scanner.nextDouble();
                     break;
+                
+
+                case "Burning": //EFFET SPECIAUX POUR FIRE
+                    burningChance = scanner.nextDouble();
+                    break;
+
+                case "Fleeing": //EFFET SPECIAUX POUR EARTH
+                    fleeingChance = scanner.nextDouble();
+                    break;
+
+                case "Evolution":
+                    evolutionName = scanner.next();
+                    break;
 
                 case "EndMonster":
 
@@ -115,8 +131,15 @@ public class MonsterDataBase {
                         monsters.add(new FireMonster(name, hp, defense, attack, speed, burningChance));
                     } else if (type == ElementType.EARTH) {
                         monsters.add(new EarthMonster(name, hp, defense, attack, speed, fleeingChance));
+                    }  else if (type == ElementType.NATURE) {
+                        monsters.add(new PlantMonster(name, hp, defense, attack, speed));
                     }
-                                        
+
+                    if (monsters != null && evolutionName != null) {
+                        monsters.get(monsters.size() - 1).setEvolutionName(evolutionName);
+                    }
+                    
+                    evolutionName = null;
                     paralizedChance = 0; floodChance = 0; fallChance = 0; burningChance = 0; fleeingChance = 0; // Reset des effets spéciaux
                     break;
                 }

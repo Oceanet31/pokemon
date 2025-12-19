@@ -4,23 +4,39 @@ import com.esiea.pootp.attacks.Attack;
 
 public class BugMonster extends NatureMonster{
 
+    private int attackCount;
+
     public BugMonster(String name, int hp, int defense, double attack, int speed){
         super(name, hp, defense, attack, speed);
+        this.attackCount = 0;
     }
 
 
     public void attack(Monster target, Attack attack){
         this.recoverHealth(target);
 
-        if(Math.random() >= 0.66){
-            target.setState(State.POISONED);
-        }
+        if (attack != null && attack.getType() == ElementType.NATURE) {
+            this.attackCount++;
+            
+            // Si c'est la 3ème attaque, on empoisonne à coup sûr
+            if (this.attackCount % 3 == 0) {
 
-        if(target instanceof WaterMonster){
-            if(((WaterMonster) target).isTerrainFlooded() && target.getState() == State.POISONED){
-                target.setState(State.NORMAL);
+                target.setState(State.POISONED);
+                System.out.println(this.getName() + " empoisonne " + target.getName() + " !");
+                
             }
         }
+
+        // Gestion de l'empoisonnement sur terrain inondé
+        if (target.getState() == State.POISONED && target instanceof WaterMonster) {
+
+            if (((WaterMonster) target).isTerrainFlooded()) {
+
+                target.setState(State.NORMAL);
+                System.out.println("L'eau lave le poison de " + target.getName() + " !");
+
+            }
+        }    
         target.applyStateEffects();
         target.getAttacked(this, attack);
     }
