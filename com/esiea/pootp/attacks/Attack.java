@@ -43,4 +43,8 @@ public class Attack{
         }
     }
 
+    public double getAccuracy(){
+        return 1.0 - this.failProbability;
+    }
+
 }

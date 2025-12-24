@@ -4,20 +4,20 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SpriteManager {
     
     private static Map<String, BufferedImage> cache = new HashMap<>();
 
-    public static BufferedImage loadImage(String path) {
+    public static BufferedImage loadImage(String path) { // Charge une image avec mise en cache
         if (cache.containsKey(path)) {
             return cache.get(path);
         }
-
-        try {// chargement de l'image depuis le fichier
-           
+        try {
             File file = new File(path);
             if (!file.exists()) {
                 System.err.println("Image introuvable : " + path);
@@ -32,9 +32,65 @@ public class SpriteManager {
         }
     }
 
-    //on charge les sprites des monstres
-    public static BufferedImage getPokemonSprite(String name, boolean isBack) {
-        String folder = isBack ? "pokemon/back/" : "pokemon/front/";
+    public static BufferedImage getPokemonSprite(String name, boolean isBack) { // Récupère le sprite d'un Pokémon
+        String folder = isBack ? "com/esiea/pootp/resources/pokemon/back/" : "com/esiea/pootp/resources/pokemon/front/";
         return loadImage(folder + name.toLowerCase() + ".png");
+    }
+
+    /**
+     * Charge une animation depuis un JSON et un PNG
+     */
+    public static Animation loadAnimation(String jsonPath, String imagePath) {
+        BufferedImage spriteSheet = loadImage(imagePath);
+        if (spriteSheet == null) return null;
+
+        File jsonFile = new File(jsonPath);
+        if (!jsonFile.exists()) {
+            System.err.println("JSON introuvable : " + jsonPath);
+            return null;
+        }
+
+        List<FrameData> frameList = new ArrayList<>();
+
+        try {
+            String content = new String(Files.readAllBytes(jsonFile.toPath()));
+            
+            // Regex pour TexturePacker
+            Pattern pattern = Pattern.compile("\"filename\":\\s*\"(.*?)\".*?\"frame\":\\s*\\{\\s*\"x\":\\s*(\\d+),\\s*\"y\":\\s*(\\d+),\\s*\"w\":\\s*(\\d+),\\s*\"h\":\\s*(\\d+)", Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(content);
+
+            while (matcher.find()) {
+                String name = matcher.group(1);
+                int x = Integer.parseInt(matcher.group(2));
+                int y = Integer.parseInt(matcher.group(3));
+                int w = Integer.parseInt(matcher.group(4));
+                int h = Integer.parseInt(matcher.group(5));
+
+                if (w > 0 && h > 0) {
+                    BufferedImage frameImg = spriteSheet.getSubimage(x, y, w, h);
+                    frameList.add(new FrameData(name, frameImg));
+                }
+            }
+
+            frameList.sort(Comparator.comparing(f -> f.name));
+
+            List<BufferedImage> finalFrames = new ArrayList<>();
+            for (FrameData fd : frameList) {
+                finalFrames.add(fd.img);
+            }
+
+            // MODIFICATION ICI : 10 FPS (au lieu de 30) pour ralentir
+            return new Animation(finalFrames, 10); 
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static class FrameData {
+        String name;
+        BufferedImage img;
+        public FrameData(String name, BufferedImage img) { this.name = name; this.img = img; }
     }
 }
