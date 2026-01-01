@@ -65,7 +65,7 @@ public class WaterMonster extends Monster{
         if (isTerrainFlooded() && attacker.getElement() != ElementType.WATER){
 
            if(Math.random() < this.fallChance){                 //20% de chance de rater son attaque
-                attacker.takeDamage(damage / 4);     //L'attaquant prend 25% des dégats qu'il voulait infliger
+                attacker.takeDamage(attacker.getAttack() / 4);     //L'attaquant prend 25% des dégats qu'il voulait infliger
                 damage = 0;  
            }
               floodDuration--;             

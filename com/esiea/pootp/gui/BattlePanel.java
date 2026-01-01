@@ -7,46 +7,52 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
+/**
+ * BattlePanel : La zone de dessin du combat.
+ * ---------------------------------------------------------
+ * Cette classe hérite de JPanel et redéfinit paintComponent(Graphics g)
+ * pour dessiner manuellement tout le jeu (Pixel Art).
+ */
 public class BattlePanel extends JPanel {
 
-    // --- DONNÉES DU COMBAT ---
+    // Références vers les monstres actuels pour savoir quoi dessiner
     private Monster playerMonster;
     private Monster enemyMonster;
     
-    // --- IMAGES DE DÉCORS ---
-    private BufferedImage background;
-    private BufferedImage podPlayer;
-    private BufferedImage podEnemy;
-    // --- ASSETS HUD (Interface) ---
-    private BufferedImage hudPlayerBg;    // Cadre Joueur (pbinfo_player.png)
-    private BufferedImage hudEnemyBg;     // Cadre Ennemi (pbinfo_enemy.png)
+    // --- IMAGES (Assets chargés en mémoire) ---
+    private BufferedImage background; // Le fond (herbe)
+    private BufferedImage podPlayer;  // La plateforme sous le joueur
+    private BufferedImage podEnemy;   // La plateforme sous l'ennemi
     
-    private BufferedImage hpBarAtlas;     // Couleurs HP (overlay_hp.png)
-    private BufferedImage expBarTexture;  // Barre EXP (overlay_exp.png)
+    // --- UI (Interface Utilisateur) ---
+    private BufferedImage hudPlayerBg;    // Cadre d'info du joueur
+    private BufferedImage hudEnemyBg;     // Cadre d'info de l'ennemi
+    private BufferedImage hpBarAtlas;     // Image contenant les couleurs de la barre de vie (Vert/Orange/Rouge)
+    private BufferedImage expBarTexture;  // Texture bleue pour la barre d'expérience
     
-    private BufferedImage lblPV;          //  "PV"
-    private BufferedImage lblEXP;         //  "EXP"
-    private BufferedImage lblLv;          //  "N."
+    private BufferedImage lblPV;          // Petit badge "PV"
+    private BufferedImage lblEXP;         // Petit badge "EXP"
+    private BufferedImage lblLv;          // Symbole "N." (Niveau)
 
-    // --- ANIMATION & MOTEUR ---
-    private Animation playerAnimation;    // Gestion animation Joueur
-    private Animation enemyAnimation;     // Gestion animation Ennemi
-    private Timer gameLoop;               // Boucle de rafraîchissement
-    private Font pixelFont;
+    // --- MOTEUR D'ANIMATION ---
+    private Animation playerAnimation;    // Gère le GIF/Animation du joueur (si dispo)
+    private Animation enemyAnimation;     // Gère l'animation de l'ennemi (si dispo)
+    private Timer gameLoop;               // Boucle infinie qui redessine l'écran 10 fois par seconde
+    private Font pixelFont;               // Police d'écriture style rétro
 
     public BattlePanel() {
         this.setBackground(Color.BLACK);
         
         // =========================================================
-        // 1. CHARGEMENT DES RESSOURCES
+        // 1. CHARGEMENT DES RESSOURCES (Au démarrage)
         // =========================================================
         
-        // Décors
+        // Chargement des décors
         this.background  = SpriteManager.loadImage("com/esiea/pootp/resources/background/grass_bg.png"); 
         this.podPlayer   = SpriteManager.loadImage("com/esiea/pootp/resources/background/grass_a.png"); 
         this.podEnemy    = SpriteManager.loadImage("com/esiea/pootp/resources/background/grass_b.png"); 
 
-        // Interface (HUD)
+        // Chargement des éléments d'interface (HUD)
         this.hudPlayerBg   = SpriteManager.loadImage("com/esiea/pootp/resources/ui/pbinfo_player.png");
         this.hudEnemyBg    = SpriteManager.loadImage("com/esiea/pootp/resources/ui/pbinfo_enemy.png");
         this.hpBarAtlas    = SpriteManager.loadImage("com/esiea/pootp/resources/ui/overlay_hp.png");
@@ -55,39 +61,44 @@ public class BattlePanel extends JPanel {
         this.lblEXP        = SpriteManager.loadImage("com/esiea/pootp/resources/ui/overlay_exp_label_fr.png");
         this.lblLv         = SpriteManager.loadImage("com/esiea/pootp/resources/ui/overlay_lv_fr.png");
 
-        // Police d'écriture
+        // Chargement de la police (ou Arial par défaut si échec)
         this.pixelFont = UIUtils.loadPixelFont(32f); 
         
         // =========================================================
-        // 2. BOUCLE DE JEU
+        // 2. BOUCLE DE RENDU (Game Loop)
         // =========================================================
         // Timer réglé à 100ms (10 FPS)
         this.gameLoop = new Timer(100, e -> {
-            if (playerAnimation != null) playerAnimation.update();
-            if (enemyAnimation != null) enemyAnimation.update();
-            repaint(); // Redessine le panneau entier
+            // À chaque "tic" du timer :
+            if (playerAnimation != null) playerAnimation.update(); // On avance l'animation du joueur
+            if (enemyAnimation != null) enemyAnimation.update(); // On avance l'animation de l'ennemi
+            repaint(); // On demande à Java de redessiner tout l'écran (appelle paintComponent)
         });
         this.gameLoop.start();
     }
 
     /**
-     * Met à jour les monstres affichés dans le panneau de combat.
+     * Appelé par le GameEngine quand les monstres changent (Switch, KO, Début de combat).
      */
     public void updateMonsters(Monster player, Monster enemy) {
+        // Mise à jour du joueur
         if (this.playerMonster != player) {
             this.playerMonster = player;
+            // On essaie de charger une animation JSON, sinon ce sera null (image fixe)
             this.playerAnimation = (player != null) ? loadMonsterAnimation(player, true) : null;
         }
 
+        // Mise à jour de l'ennemi
         if (this.enemyMonster != enemy) {
             this.enemyMonster = enemy;
             this.enemyAnimation = (enemy != null) ? loadMonsterAnimation(enemy, false) : null;
         }
-        this.repaint();
+        this.repaint(); // Force un redessin immédiat
     }
 
     /**
-     * Cherche le fichier .json correspondant au monstre pour charger son animation.
+     * Tente de charger le fichier .json d'animation associé au monstre.
+     * isBack = true si c'est le monstre du joueur (vu de dos).
      */
     private Animation loadMonsterAnimation(Monster m, boolean isBack) {
         String folder = isBack ? "com/esiea/pootp/resources/pokemon/back/" : "com/esiea/pootp/resources/pokemon/front/";
@@ -100,15 +111,18 @@ public class BattlePanel extends JPanel {
         if (f.exists()) {
             return SpriteManager.loadAnimation(jsonPath, pngPath);
         }
-        return null; // Pas d'animation, on utilisera l'image fixe
+        return null; // Pas d'animation trouvée
     }
 
+    // =========================================================
+    //              MÉTHODE PRINCIPALE DE DESSIN
+    // =========================================================
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
-        //on enlève le lissage pour un rendu pixel art
+        // Astuce : Désactive le lissage (Anti-aliasing) pour garder les pixels bien nets (Retro Style)
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
@@ -116,13 +130,13 @@ public class BattlePanel extends JPanel {
         if (background != null) {
             g2d.drawImage(background, 0, 0, getWidth(), getHeight(), null);
         } else {
-            g2d.setColor(new Color(110, 190, 110));
+            g2d.setColor(new Color(110, 190, 110)); // Fond vert si image manquante
             g2d.fillRect(0, 0, getWidth(), getHeight());
         }
 
-        int groundY = getHeight() - 180; // Hauteur du sol (au-dessus du menu du bas)
+        int groundY = getHeight() - 180; // Niveau du sol visuel (au-dessus du menu du bas)
 
-        // --- 2. DESSIN DES PODS ---
+        // --- 2. DESSIN DES PODS (Plateformes) ---
         if (podEnemy != null) {
             int w = 1000; int h = 500;
             g2d.drawImage(podEnemy, 200, getHeight() - h - 50, w, h, null);
@@ -136,7 +150,7 @@ public class BattlePanel extends JPanel {
         if (enemyMonster != null) {
             BufferedImage spriteToDraw = null;
 
-            // Choix : Animation ou Image Fixe ?
+            // On prend l'image de l'animation SI elle existe, sinon l'image fixe
             if (enemyAnimation != null) {
                 spriteToDraw = enemyAnimation.getSprite();
             } else {
@@ -144,17 +158,18 @@ public class BattlePanel extends JPanel {
             }
 
             if (spriteToDraw != null) {
-                int scale = 4; // Zoom pour l'ennemi
+                int scale = 4; // Zoom pour l'ennemi (il est loin)
                 int w = spriteToDraw.getWidth() * scale;
                 int h = spriteToDraw.getHeight() * scale;
                 
+                // Positionnement calculé
                 int x = getWidth() - 370; 
                 int y = 250 - h + 60;
                 
                 g2d.drawImage(spriteToDraw, x, y, w, h, null);
             }
             
-            // HUD ENNEMI (Position et Taille Large)
+            // Dessine l'interface (Nom + PV) de l'ennemi
             drawEnemyHUD(g2d, enemyMonster, 40, 40, 450, 125);
         }
 
@@ -169,24 +184,20 @@ public class BattlePanel extends JPanel {
             }
 
             if (spriteToDraw != null) {
-                int scale = 5; // Zoom pour le joueur (plus grand car devant)
+                int scale = 5; // Zoom plus gros car le joueur est au premier plan
                 int w = spriteToDraw.getWidth() * scale;
                 int h = spriteToDraw.getHeight() * scale;
                 
                 int x = 175; 
-                int y = groundY - h + 220; // Ajustement sur le pod
+                int y = groundY - h + 220; 
                 
                 g2d.drawImage(spriteToDraw, x, y, w, h, null);
             }
             
-            // HUD JOUEUR
+            // Calcul position HUD Joueur (Bas Droite)
             int hudW = 520; 
             int hudH = 160;
-            
-            // Calcul X : Droite de l'écran avec marge
             int hudX = getWidth() - hudW - 20; 
-            
-            // Calcul Y : Bas de l'écran, remonté de 170px par rapport au menu
             int hudY = getHeight() - 180 - hudH + 170; 
             
             drawPlayerHUD(g2d, playerMonster, hudX, hudY, hudW, hudH);
@@ -194,24 +205,24 @@ public class BattlePanel extends JPanel {
     }
 
     // =========================================================
-    //                  GESTION DU HUD
+    //                  MÉTHODES D'INTERFACE (HUD)
     // =========================================================
 
     /**
-     * Affiche l'interface de l'adversaire
+     * Dessine la barre de vie et le nom de l'ennemi.
      */
     private void drawEnemyHUD(Graphics2D g, Monster m, int x, int y, int w, int h) {
-        // Fond
+        // Fond du cadre
         if (hudEnemyBg != null) {
             g.drawImage(hudEnemyBg, x, y, w, h, null);
         }
 
-        // Nom
+        // Nom du monstre avec ombre portée pour lisibilité
         g.setColor(Color.WHITE);
         g.setFont(pixelFont.deriveFont(50f));
-        g.setColor(new Color(0,0,0,100)); // Ombre
+        g.setColor(new Color(0,0,0,100)); // Ombre noire transparente
         g.drawString(m.getName(), x + 54, y + 59); 
-        g.setColor(Color.WHITE);          // Texte
+        g.setColor(Color.WHITE);          // Texte blanc par-dessus
         g.drawString(m.getName(), x + 50, y + 55);
 
         // Niveau
@@ -221,7 +232,7 @@ public class BattlePanel extends JPanel {
             g.drawString("" + m.getLevel(), x + w - 140, y + 53);
         }
 
-        // Barre PV
+        // Calcul et dessin de la barre de vie
         int barX = x + 204; 
         int barY = y + 81; 
         int barW = 166;  
@@ -231,23 +242,25 @@ public class BattlePanel extends JPanel {
             g.drawImage(lblPV, barX - 58, barY - 10, 52, 28, null);
         }
 
+        // Ratio PV (entre 0.0 et 1.0)
         double ratio = (double) m.getHp() / m.getStartingHp();
         if (ratio < 0) ratio = 0; else if (ratio > 1) ratio = 1;
-        int currentW = (int) (barW * ratio);
+        int currentW = (int) (barW * ratio); // Largeur en pixels
 
-        // Couleur dynamique (Vert -> Orange -> Rouge)
+        // Choix de la couleur dans l'atlas (Vert / Orange / Rouge)
         int srcY = 0; 
         if (ratio <= 0.2) srcY = 4;      
         else if (ratio <= 0.5) srcY = 2; 
         
         if (hpBarAtlas != null && currentW > 0) {
+            // getSubimage découpe juste la bande de couleur nécessaire
             BufferedImage barColor = hpBarAtlas.getSubimage(0, srcY, hpBarAtlas.getWidth(), 2);
             g.drawImage(barColor, barX, barY, currentW, barH, null);
         }
     }
 
     /**
-     * Affiche l'interface du joueur
+     * Dessine l'interface du joueur (plus détaillée : affiche les PV exacts et l'EXP).
      */
     private void drawPlayerHUD(Graphics2D g, Monster m, int x, int y, int w, int h) {
         // Fond
@@ -270,7 +283,7 @@ public class BattlePanel extends JPanel {
             g.drawString("" + m.getLevel(), x + w - 110, y + 55);
         }
 
-        // Barre PV
+        // Barre PV (similaire à l'ennemi mais dimensions différentes)
         int barX = x + 276; 
         int barY = y + 76; 
         int barW = 192;  
@@ -280,27 +293,27 @@ public class BattlePanel extends JPanel {
             g.drawImage(lblPV, barX - 58, barY - 10, 52, 28, null);
         }
 
-        double ratio = (double) m.getHp() / m.getStartingHp(); // Calcul ratio PV
+        double ratio = (double) m.getHp() / m.getStartingHp();
         if (ratio < 0) ratio = 0; else if (ratio > 1) ratio = 1;
         int currentW = (int) (barW * ratio);
 
-        int srcY = 0;  // Couleur dynamique (Vert -> Orange -> Rouge)
+        int srcY = 0;
         if (ratio <= 0.2) srcY = 4; 
         else if (ratio <= 0.5) srcY = 2; 
         
-        if (hpBarAtlas != null && currentW > 0) { // Dessin de la barre HP
+        if (hpBarAtlas != null && currentW > 0) {
             BufferedImage barColor = hpBarAtlas.getSubimage(0, srcY, hpBarAtlas.getWidth(), 2);
             g.drawImage(barColor, barX, barY, currentW, barH, null);
         }
 
-        // Texte PV (ex: 120 / 120)
+        // Texte PV détaillé - Spécifique au joueur
         g.setColor(Color.WHITE);
         g.setFont(pixelFont.deriveFont(24f));
         String hpTxt = m.getHp() + " / " + m.getStartingHp();
         int txtW = g.getFontMetrics().stringWidth(hpTxt);
         g.drawString(hpTxt, x + w - txtW - 40, y + 72);
         
-        // Barre EXP
+        // --- BARRE EXPÉRIENCE ---
         int expBarX = x + 128; 
         int expBarY = y + 148; 
         int expW = 340;     
@@ -310,8 +323,14 @@ public class BattlePanel extends JPanel {
             g.drawImage(lblEXP, x + 100, expBarY - 20, 64, 28, null); 
         }
 
-        int currentExpW = (int) (expW * 1.0); // 100% visuel pour l'instant
+        // Calcul du ratio d'XP pour le niveau suivant
+        double expRatio = (double) m.getXp() / m.getXpToNextLevel();
+        if (expRatio < 0) expRatio = 0; 
+        if (expRatio > 1) expRatio = 1;
+
+        int currentExpW = (int) (expW * expRatio);
         
+        // Dessin de la barre bleue
         if (expBarTexture != null && currentExpW > 0) {
             g.drawImage(expBarTexture, expBarX, expBarY, currentExpW, expH, null);
         } else if (currentExpW > 0) {

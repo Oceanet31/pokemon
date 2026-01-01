@@ -2,13 +2,110 @@ Attack
 Name Eclair
 	Type LIGHTNING
 	Power 40
-	NbUse 10
-	Fail 0.07
+	NbUse 30
+	Fail 0.05
 EndAttack
+
+Attack
+Name Tonnerre
+	Type LIGHTNING
+	Power 90
+	NbUse 10
+	Fail 0.25
+EndAttack
+
 Attack
 Name Charge
-	Type NATURE
+	Type NORMAL
 	Power 35
+	NbUse 35
+	Fail 0.01
+EndAttack
+
+Attack
+Name Griffe
+	Type NORMAL
+	Power 40
+	NbUse 35
+	Fail 0.02
+EndAttack
+
+Attack
+Name Vive-Attaque
+	Type NORMAL
+	Power 40
+	NbUse 20
+	Fail 0.0
+EndAttack
+
+Attack
+Name Flammeche
+	Type FIRE
+	Power 40
+	NbUse 25
+	Fail 0.05
+EndAttack
+
+Attack
+Name RoueDeFeu
+	Type FIRE
+	Power 60
 	NbUse 15
-	Fail 0.03
+	Fail 0.10
+EndAttack
+
+Attack
+Name PistoletAO
+	Type WATER
+	Power 40
+	NbUse 25
+	Fail 0.05
+EndAttack
+
+Attack
+Name BulleDO
+	Type WATER
+	Power 20
+	NbUse 40
+	Fail 0.0
+EndAttack
+
+Attack
+Name FouetLianes
+	Type NATURE
+	Power 45
+	NbUse 25
+	Fail 0.05
+EndAttack
+
+Attack
+Name TranchHerbe
+	Type NATURE
+	Power 55
+	NbUse 20
+	Fail 0.10
+EndAttack
+
+Attack
+Name Dard-Venin
+	Type NATURE
+	Power 15
+	NbUse 35
+	Fail 0.05
+EndAttack
+
+Attack
+Name JetDeSable
+	Type EARTH
+	Power 20
+	NbUse 30
+	Fail 0.10
+EndAttack
+
+Attack
+Name Seisme
+	Type EARTH
+	Power 100
+	NbUse 5
+	Fail 0.30
 EndAttack

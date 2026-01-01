@@ -47,7 +47,10 @@ public class EarthMonster extends Monster{
     public void getAttacked(Monster attacker, Attack attack){
         double damage = attacker.damages(this); //Calculate damage from attacker
 
-
+        if (this.isProtected()) {
+        damage = damage / 2;
+        System.out.println(this.getName() + " est sous terre et réduit les dégâts !");
+        }
         //------Special Effects------
          switch(attacker.getElement()){
             case NATURE :
