@@ -88,6 +88,45 @@ public class SpriteManager {
         }
     }
 
+    public static BufferedImage getFrameFromAtlas(String jsonPath, String imagePath, String frameName) {
+        BufferedImage spriteSheet = loadImage(imagePath);
+        if (spriteSheet == null) return null;
+
+        java.io.File jsonFile = new java.io.File(jsonPath);
+        if (!jsonFile.exists()) {
+            // Fallback pour essayer de charger depuis le classpath si le fichier direct échoue
+            java.net.URL url = SpriteManager.class.getClassLoader().getResource(jsonPath);
+            if (url == null) return null;
+            jsonFile = new java.io.File(url.getFile());
+        }
+
+        try {
+            String content = new String(java.nio.file.Files.readAllBytes(jsonFile.toPath()));
+            
+            // Regex pour trouver les coordonnées de la frame demandée dans le JSON TexturePacker
+            String quoteName = java.util.regex.Pattern.quote(frameName);
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\"filename\":\\s*\"" + quoteName + "\".*?\"frame\":\\s*\\{\\s*\"x\":\\s*(\\d+),\\s*\"y\":\\s*(\\d+),\\s*\"w\":\\s*(\\d+),\\s*\"h\":\\s*(\\d+)", java.util.regex.Pattern.DOTALL);
+            java.util.regex.Matcher matcher = pattern.matcher(content);
+
+            if (matcher.find()) {
+                int x = Integer.parseInt(matcher.group(1));
+                int y = Integer.parseInt(matcher.group(2));
+                int w = Integer.parseInt(matcher.group(3));
+                int h = Integer.parseInt(matcher.group(4));
+                
+                return spriteSheet.getSubimage(x, y, w, h);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    // Helper pour les icônes
+    public static BufferedImage getPokemonIcon(String name) {
+        return loadImage("com/esiea/pootp/resources/icons/" + name.toLowerCase() + ".png");
+    }
+
     private static class FrameData {
         String name;
         BufferedImage img;

@@ -29,6 +29,10 @@ public class Attack{
         return this.nbUse;
     }
 
+    public void setNbUse(int nbUse){
+        this.nbUse = nbUse;
+    }
+
     public int getPower(){
         return this.power;
     }

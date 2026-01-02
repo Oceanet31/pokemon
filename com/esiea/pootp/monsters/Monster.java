@@ -1,8 +1,10 @@
 package com.esiea.pootp.monsters;
 
+import com.esiea.pootp.PokemonApp; // IMPORTANT : Pour accéder à la base d'attaques
 import com.esiea.pootp.attacks.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public abstract class Monster{
     private ElementType element;
@@ -157,7 +159,7 @@ public abstract class Monster{
 
     // Monster applies state effects at the start of its turn
     public void applyStateEffects() {
-        if (this.state == State.BURNED && this.state == State.POISONED) {
+        if (this.state == State.BURNED || this.state == State.POISONED) {
     
             double burnDamage = this.attack / 10;
             this.takeDamage(burnDamage);
@@ -170,8 +172,7 @@ public abstract class Monster{
 
     public void gainXp(int amount) { //Méthode pour gagner de l'expérience
         this.xp += amount;
-        System.out.println(this.name + " gagne " + amount + " points d'expérience !");
-
+        
         // Boucle while au cas où on gagne assez d'XP pour passer plusieurs niveaux d'un coup
         while (this.xp >= this.xpToNextLevel) {
             levelUp();
@@ -190,9 +191,45 @@ public abstract class Monster{
         // Augmentation des statistiques (+10% par niveau)
         increaseStats(1.10);
         
+        // Apprentissage d'une nouvelle attaque
+        learnNewAttack();
+        
         // Soin complet gratuit au passage de niveau
         this.healFullHP();
-        
+    }
+
+    // --- NOUVELLE MÉTHODE : APPRENTISSAGE D'ATTAQUE ---
+    private void learnNewAttack() {
+        // 1. Récupérer toutes les attaques disponibles via PokemonApp
+        ArrayList<Attack> allAttacks = PokemonApp.attackDB.getAttacks();
+        ArrayList<Attack> learnableAttacks = new ArrayList<>();
+
+        // 2. Filtrer les attaques compatibles (Même type ou NATURE) et pas encore connues
+        for (Attack a : allAttacks) {
+            boolean isCompatible = (a.getType() == this.element || a.getType() == ElementType.NORMAL);
+            boolean isKnown = this.attacks.contains(a);
+            
+            if (isCompatible && !isKnown) {
+                learnableAttacks.add(a);
+            }
+        }
+
+        // 3. Si des attaques sont disponibles, en apprendre une au hasard
+        if (!learnableAttacks.isEmpty()) {
+            Random r = new Random();
+            Attack newAttack = learnableAttacks.get(r.nextInt(learnableAttacks.size()));
+
+            if (this.attacks.size() < 4) {
+                this.attacks.add(newAttack);
+                System.out.println(this.name + " apprend l'attaque " + newAttack.getName() + " !");
+            } else {
+                // Si déjà 4 attaques, on oublie la première (la plus vieille)
+                Attack forgotten = this.attacks.get(0);
+                this.attacks.remove(0);
+                this.attacks.add(newAttack);
+                System.out.println(this.name + " oublie " + forgotten.getName() + " et apprend " + newAttack.getName() + " !");
+            }
+        }
     }
 
     private void increaseStats(double multiplier) { //Méthode pour augmenter les stats du monstre

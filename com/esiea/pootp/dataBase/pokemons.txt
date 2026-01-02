@@ -1,20 +1,95 @@
 Monster
-    Name Pikachu
-    Type Electric
-    HP 100 130
-    Speed 120 150
-    Attack 75 100
-    Defense 50 70
-    Paralysis 0.25
+    Name Salameche
+    Type FIRE
+    HP 39 50
+    Speed 65 75
+    Attack 52 60
+    Defense 43 50
+    Burning 0.20
+EndMonster
+
+Monster
+    Name Bulbizarre
+    Type NATURE
+    HP 45 55
+    Speed 45 50
+    Attack 49 55
+    Defense 49 55
 EndMonster
 
 Monster
     Name Carapuce
-    Type Water
-    HP 80 100
-    Speed 43 65
-    Attack 48 70
-    Defense 65 85
-    Flood 0.15
+    Type WATER
+    HP 44 55
+    Speed 43 50
+    Attack 48 55
+    Defense 65 75
+    Flood 0.20
     Fall 0.20
+EndMonster
+
+Monster
+    Name Chenipan
+    Type NATURE
+    HP 30 40
+    Speed 45 50
+    Attack 30 35
+    Defense 35 40
+EndMonster
+
+Monster
+    Name Aspicot
+    Type NATURE
+    HP 30 40
+    Speed 50 55
+    Attack 35 40
+    Defense 30 35
+EndMonster
+
+Monster
+    Name Roucool
+    Type NORMAL
+    HP 40 50
+    Speed 56 65
+    Attack 45 50
+    Defense 40 45
+EndMonster
+
+Monster
+    Name Rattata
+    Type NORMAL
+    HP 30 35
+    Speed 72 80
+    Attack 56 60
+    Defense 35 40
+EndMonster
+
+Monster
+    Name Pikachu
+    Type LIGHTNING
+    HP 35 45
+    Speed 90 100
+    Attack 55 65
+    Defense 40 50
+    Paralysis 0.25
+EndMonster
+
+Monster
+    Name Goupix
+    Type FIRE
+    HP 38 45
+    Speed 65 70
+    Attack 41 50
+    Defense 40 45
+    Burning 0.25
+EndMonster
+
+Monster
+    Name Racaillou
+    Type EARTH
+    HP 40 50
+    Speed 20 30
+    Attack 80 90
+    Defense 100 110
+    Fleeing 0.15
 EndMonster
