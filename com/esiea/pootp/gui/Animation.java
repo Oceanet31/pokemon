@@ -11,7 +11,7 @@ public class Animation {
 
     public Animation(List<BufferedImage> frames, int fps) {
         this.frames = frames;
-        this.frameDelay = 1000 / fps; // ex: 30 fps = ~33ms
+        this.frameDelay = 1000 / fps;
         this.currentFrameIndex = 0;
         this.lastFrameTime = System.currentTimeMillis();
     }

@@ -1,5 +1,5 @@
 Attack
-Name Eclair
+	Name Eclair
 	Type LIGHTNING
 	Power 40
 	NbUse 10
