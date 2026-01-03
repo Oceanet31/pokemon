@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-////////A VERIFIER ///////////
 public class AttackDataBase {
 
     private double failProbability;
@@ -16,10 +15,19 @@ public class AttackDataBase {
     private ElementType type;
     private ArrayList<Attack> attacks;
 
+    /**
+     * Constructor for AttackDataBase
+     */
     public AttackDataBase(){
         this.attacks = new ArrayList<Attack>();
     }
 
+
+    /**
+     * Load attacks from a file and populate the attacks list
+     * @param file the file containing attack data
+     * @throws FileNotFoundException if the file is not found
+     */
     public void loadAttacksFromFile(File file) throws FileNotFoundException {
 
         Scanner scanner = new Scanner(file); // Scanner pour lire le fichier
@@ -96,6 +104,10 @@ public class AttackDataBase {
         scanner.close();
     }
 
+    /**
+     * Get the list of attacks
+     * @return list of attacks
+     */
     public ArrayList<Attack> getAttacks(){
         return this.attacks;
     }

@@ -9,6 +9,15 @@ public class LightningMonster extends Monster{
     private double paralizedChance;
     private int paralizedDuration;
 
+    /**
+     * Constructor for LightningMonster
+     * @param name Name of the monster
+     * @param hp Health points of the monster
+     * @param defense Defense stat of the monster
+     * @param attack Attack stat of the monster
+     * @param speed Speed stat of the monster
+     * @param paralizedChance Chance to paralyze the opponent
+     */
     public LightningMonster(String name, int hp, int defense, double attack, int speed, double paralizedChance){
         super(name,ElementType.LIGHTNING,hp,defense,attack,speed);
         this.paralizedChance = paralizedChance;
@@ -16,6 +25,11 @@ public class LightningMonster extends Monster{
     }
 
   
+    /**
+     * Perform an attack on a target monster
+     * @param monster Target monster to attack
+     * @param attack Attack to use
+     */
     @Override
     public void attack(Monster monster, Attack attack){
         //peut paraliser s'il utilise une attaque "anormale"
@@ -32,6 +46,11 @@ public class LightningMonster extends Monster{
     }
 
 
+    /**
+     * Handle being attacked by another monster
+     * @param monster Attacking monster
+     * @param attack Attack used
+     */
     @Override
     public void getAttacked(Monster monster, Attack attack){
 
@@ -69,7 +88,11 @@ public class LightningMonster extends Monster{
         }
     }
 
+    /**
+     * Get the paralized chance of the monster
+     * @return paralized chance
+     */
     public double getParalizedChance() {
-    return this.paralizedChance;
+        return this.paralizedChance;
     }
 }

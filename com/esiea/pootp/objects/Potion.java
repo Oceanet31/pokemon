@@ -8,25 +8,49 @@ public class Potion extends Item{
     private int power;
     private PotionType type;
 
+    /**
+     * Constructor for Potion
+     * @param name Name of the potion
+     * @param power Power of the potion
+     * @param type Type of the potion
+     */
     public Potion(String name, int power, PotionType type){
         this.name = name;
         this.power = power;
         this.type = type;
     }
 
+
+    /**
+     * Get the name of the potion
+     * @return name of the potion
+     */
     @Override
     public String getName(){
         return this.name;
     }
 
+    /**
+     * Get the power of the potion
+     * @return power of the potion
+     */
     public int getPower(){
         return this.power;
     }
 
+    /**
+     * Get the type of the potion
+     * @return type of the potion
+     */
     public PotionType getType(){
         return this.type;
     }
 
+
+    /**
+     * Use the potion on a monster
+     * @param monster Monster to use the potion on
+     */
     @Override
     public void use(Monster monster){
         switch(this.type){

@@ -9,13 +9,26 @@ public class EarthMonster extends Monster{
     private double fleeingChance;
     private int fleeingDuration;
 
+    /**
+     * Constructor for EarthMonster
+     * @param name Name of the monster
+     * @param hp Health points of the monster
+     * @param defense Defense stat of the monster
+     * @param attack Attack stat of the monster
+     * @param speed Speed stat of the monster
+     * @param fleeingChance Chance to flee
+     */
     public EarthMonster(String name, int hp, int defense, double attack, int speed, double fleeingChance){
         super(name,ElementType.EARTH,hp,defense,attack,speed);
         this.fleeingChance = fleeingChance;
         this.fleeingDuration = 0;
     }
 
-
+    /**
+     * Perform an attack on a target monster
+     * @param monster Target monster to attack
+     * @param attack Attack to use
+     */
     @Override
     public void attack(Monster monster, Attack attack){
         //peut paraliser s'il utilise une attaque "anormale"
@@ -42,7 +55,11 @@ public class EarthMonster extends Monster{
         monster.getAttacked(this, attack);
     }
 
-
+    /**
+     * Handle being attacked by another monster
+     * @param attacker Attacking monster
+     * @param attack Attack used
+     */
     @Override
     public void getAttacked(Monster attacker, Attack attack){
         double damage = attacker.damages(this); //Calculate damage from attacker

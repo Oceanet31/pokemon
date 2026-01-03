@@ -7,8 +7,15 @@ public class Animation {
     private List<BufferedImage> frames;
     private int currentFrameIndex;
     private long lastFrameTime;
-    private long frameDelay; // Temps en ms entre chaque image
 
+    /** Temps en ms entre chaque image */
+    private long frameDelay; 
+
+    /**
+     * Constructor for Animation
+     * @param frames List of frames for the animation
+     * @param fps Frames per second
+     */
     public Animation(List<BufferedImage> frames, int fps) {
         this.frames = frames;
         this.frameDelay = 1000 / fps;
@@ -16,6 +23,9 @@ public class Animation {
         this.lastFrameTime = System.currentTimeMillis();
     }
 
+    /**
+     * Update the animation to the next frame
+     */
     public void update() { // Met à jour l'animation
         if (frames.isEmpty()) return;
 
@@ -29,6 +39,9 @@ public class Animation {
         }
     }
 
+    /** Get the current sprite 
+     * @return current sprite image
+    */
     public BufferedImage getSprite() { // Récupère l'image courante
         if (frames.isEmpty()) return null;
         return frames.get(currentFrameIndex);

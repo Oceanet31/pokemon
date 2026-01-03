@@ -11,16 +11,29 @@ public class MonsterDataBase {
 
     private ArrayList<Monster> monsters;
     
-
+    /**
+     * Constructor for MonsterDataBase
+     */
     public MonsterDataBase() {
         this.monsters = new ArrayList<Monster>();
     }
 
-    // Méthode pour générer un entier entre les deux bornes données
+    /**
+     * Generate a random stat between min and max
+     * @param min minimum value
+     * @param max maximum value
+     * @return random value between min and max
+     */
     private int randomStat(int min, int max) {
         return (int) (Math.random() * (max - min + 1)) + min;
     }
 
+
+    /**
+     * Load monsters from a file and populate the monsters list
+     * @param file the file containing monster data
+     * @throws FileNotFoundException if the file is not found
+     */
     public void loadMonstersFromFile(File file) throws FileNotFoundException {
 
         Scanner scanner = new Scanner(file);  // Scanner pour lire le fichier
@@ -147,6 +160,11 @@ public class MonsterDataBase {
         scanner.close();
     }
 
+
+    /**
+     * Get the list of monsters
+     * @return list of monsters
+     */
     public ArrayList<Monster> getMonsters() {
         return this.monsters;
     }

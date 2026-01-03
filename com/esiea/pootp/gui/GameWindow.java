@@ -38,6 +38,9 @@ public class GameWindow extends JFrame {
     private Runnable onTextFinished; // Ce qu'on fait quand le texte est fini
     private boolean isTyping = false;
 
+    /** Constructor for GameWindow
+     * @param player Player instance
+    */
     public GameWindow(Player player) {
         this.player = player;
         this.setTitle("Pokémon Java Edition");
@@ -48,7 +51,7 @@ public class GameWindow extends JFrame {
         JPanel mainContent = new JPanel(new BorderLayout());
         mainContent.setBounds(0, 0, 1200, 800); 
         this.setContentPane(mainContent);
-
+        //Utilite de les declerer ici
         // Chargement Assets
         this.overlayBg = SpriteManager.loadImage("com/esiea/pootp/resources/ui/overlay_message.png");
         this.windowFrame = SpriteManager.loadImage("com/esiea/pootp/resources/ui/window_1.png");
@@ -76,7 +79,11 @@ public class GameWindow extends JFrame {
         this.setVisible(true);
     }
 
-    // --- LOGIQUE TEXTE DÉFILANT ---
+    /**
+     * Show a dialog with typewriter effect
+     * @param text Text to display
+     * @param nextAction Action to perform after text is displayed
+     */
     public void showDialog(String text, Runnable nextAction) {
         // On s'assure que la zone de log est visible
         if (leftContainer.getComponent(0) != logArea) {
@@ -92,6 +99,9 @@ public class GameWindow extends JFrame {
         this.textTimer.start();
     }
 
+    /**
+     * Update the text area with typewriter effect
+     */
     private void updateTextTypewriter() {
         if (textToDisplay == null) return;
         if (textIndex < textToDisplay.length()) {
@@ -108,6 +118,10 @@ public class GameWindow extends JFrame {
         }
     }
 
+    /**
+     * Add log text directly (without typewriter effect)
+     * @param text Text to display
+     */
     public void addLog(String text) { 
         if (leftContainer.getComponent(0) != logArea) {
              leftContainer.removeAll(); leftContainer.add(logArea, BorderLayout.CENTER);
@@ -116,10 +130,24 @@ public class GameWindow extends JFrame {
         logArea.setText(text); 
     }
 
-    public void setGameEngine(GameEngine engine) { this.gameEngine = engine; }
-    public BattlePanel getBattlePanel() { return battlePanel; }
+    /** Set the game engine 
+     * @param engine GameEngine instance
+    */
+    public void setGameEngine(GameEngine engine) { 
+        this.gameEngine = engine; 
+    }
 
-    // --- INITIALISATION INTERFACE BAS ---
+    /** Return the battle panel
+     * @return battle panel
+     */
+    public BattlePanel getBattlePanel() { 
+        return battlePanel; 
+    }
+
+    /**
+     * Initialize the bottom panel with log area and buttons
+     * @param mainContent Main content panel
+     */
     private void initBottomPanel(JPanel mainContent) {
         bottomPanel = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
@@ -132,6 +160,7 @@ public class GameWindow extends JFrame {
                 } else { g.setColor(Color.DARK_GRAY); g.fillRect(0, 0, getWidth(), getHeight()); }
             }
         };
+
         bottomPanel.setPreferredSize(new Dimension(800, 180));
         bottomPanel.setLayout(new BorderLayout());
         mainContent.add(bottomPanel, BorderLayout.SOUTH);
@@ -167,6 +196,10 @@ public class GameWindow extends JFrame {
         bottomPanel.add(rightContainer, BorderLayout.EAST);
     }
 
+
+    /**
+     * Show main menu buttons
+     */
     public void showMainMenuButtons() {
         buttonPanel.setPreferredSize(new Dimension(500, 180)); 
         leftContainer.removeAll(); leftContainer.add(logArea, BorderLayout.CENTER);
@@ -180,6 +213,9 @@ public class GameWindow extends JFrame {
         buttonPanel.revalidate(); buttonPanel.repaint();
     }
 
+    /**
+     * Show attack menu
+     */
     public void showAttackMenu() {
         Monster active = player.getActiveMonster();
         if (active == null) return;
@@ -231,19 +267,48 @@ public class GameWindow extends JFrame {
         buttonPanel.revalidate(); buttonPanel.repaint();
     }
 
+
+    /**     
+     * Create a menu button with given text and action
+     * @param text Button text
+     * @param action Action listener
+     * @return created MenuButton
+     */
     private MenuButton createMenuButton(String text, java.awt.event.ActionListener action) {
         MenuButton btn = new MenuButton(text);
         btn.addActionListener(action);
         return btn;
     }
 
-    // --- PANNEAU INFO ATTAQUE (TYPES CORRIGÉS) ---
+    
+    /**
+     * Panneau d'information sur l'attaque sélectionnée
+     */
     private class AttackInfoPanel extends JPanel {
         private Attack currentAttack;
-        public AttackInfoPanel() { setOpaque(false); }
-        public void updateInfo(Attack atk) { this.currentAttack = atk; this.repaint(); }
+
+        /**
+         * Constructor for AttackInfoPanel
+         */
+        public AttackInfoPanel() { 
+            setOpaque(false); 
+        }
+
+        /**
+         * Update the displayed attack info
+         * @param atk Attack to display
+         */
+        public void updateInfo(Attack atk) { 
+            this.currentAttack = atk; 
+            this.repaint(); 
+        }
         
-        @Override protected void paintComponent(Graphics g) {
+        @Override 
+        /**
+         * Paint the attack info panel
+         * @param g Graphics context
+         */
+        protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             if (currentAttack == null) return;
             Graphics2D g2 = (Graphics2D) g;
@@ -281,13 +346,22 @@ public class GameWindow extends JFrame {
             drawShadowText(g2, "Précision", leftX + 10, line3Y);
             drawShadowText(g2, "" + (int)(currentAttack.getAccuracy()*100), rightX + 10, line3Y);
         }
+
+        /** Draw text with shadow effect
+         * @param g2 Graphics2D context
+         * @param text Text to draw
+         * @param x X position
+         * @param y Y position
+         */
         private void drawShadowText(Graphics2D g2, String text, int x, int y) {
             g2.setColor(new Color(95, 85, 105)); g2.drawString(text, x + 2, y + 2);
             g2.setColor(Color.WHITE); g2.drawString(text, x, y);
         }
     }
     
-    // --- GESTION MENU SAC ---
+    /**
+     * Toggle bag menu
+     */
     private void toggleBagMenu() {
         if (bagOverlay == null) {
             bagOverlay = new BagOverlay();
@@ -297,14 +371,34 @@ public class GameWindow extends JFrame {
             addLog("Quel objet utiliser ?");
         } else closeBagMenu();
     }
+
+    /**
+     *  Close bag menu
+     */
     private void closeBagMenu() {
-        if (bagOverlay != null) { getLayeredPane().remove(bagOverlay); bagOverlay = null; getLayeredPane().repaint(); addLog("Retour au combat."); }
+        if (bagOverlay != null) { 
+            getLayeredPane().remove(bagOverlay); 
+            bagOverlay = null; 
+            getLayeredPane().repaint(); 
+            addLog("Retour au combat."); 
+        }
     }
+
+    /**
+     * Reposition bag overlay
+     */
     private void reposBagOverlay() {
         if(bagOverlay != null) bagOverlay.setBounds(getLayeredPane().getWidth()-500, getLayeredPane().getHeight()-180-320-15, 500, 320);
     }
 
+    /**
+     * Bag overlay panel
+     */
     private class BagOverlay extends JPanel {
+
+        /**
+         * Constructor for BagOverlay
+         */
         public BagOverlay() {
             setOpaque(false); setLayout(new BorderLayout()); setBorder(new EmptyBorder(30, 45, 30, 30));
             JPanel listPanel = new JPanel(new GridLayout(5, 1)); listPanel.setOpaque(false);
@@ -322,13 +416,20 @@ public class GameWindow extends JFrame {
                 });
                 listPanel.add(btn); count++;
             }
+
             MenuButton btnBack = new MenuButton("Retour");
             btnBack.setFont(pixelFont.deriveFont(52f));
             btnBack.addActionListener(e -> closeBagMenu());
             listPanel.add(btnBack);
             add(listPanel, BorderLayout.CENTER);
         }
-        @Override protected void paintComponent(Graphics g) {
+
+        @Override 
+        /**
+         * Paint the bag overlay panel
+         * @param g Graphics context
+         */
+        protected void paintComponent(Graphics g) {
             if (windowFrame != null) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
@@ -339,7 +440,9 @@ public class GameWindow extends JFrame {
         }
     }
 
-    // --- GESTION MENU ÉQUIPE ---
+    /**
+     * Toggle team menu
+     */
     private void toggleTeamMenu() {
         if (teamOverlay == null) {
             // Création avec Callback pour le switch.
@@ -357,13 +460,25 @@ public class GameWindow extends JFrame {
             lp.revalidate(); lp.repaint();
         } else closeTeamMenu();
     }
+
+    /**
+     * Close team menu
+     */
     private void closeTeamMenu() {
         if (teamOverlay != null) { getLayeredPane().remove(teamOverlay); teamOverlay = null; getLayeredPane().repaint(); }
     }
 
+    /**
+     * Menu button with pixel art style
+     */
     private class MenuButton extends JButton {
         // Bouton stylisé Pixel Art (même code que TeamMenuButton en gros)
         private boolean isHovered = false;
+
+        /**
+         *  Constructor for MenuButton
+         * @param text Button text
+         */
         public MenuButton(String text) {
             super(text); setFont(pixelFont.deriveFont(52f)); setForeground(Color.WHITE);
             setFocusPainted(false); setContentAreaFilled(false); setBorderPainted(false);
@@ -374,13 +489,22 @@ public class GameWindow extends JFrame {
                 @Override public void mouseExited(MouseEvent e) { isHovered = false; repaint(); }
             });
         }
-        @Override protected void paintComponent(Graphics g) {
+
+
+        @Override 
+        /**
+         * Paint the menu button
+         * @param g Graphics context
+         */
+        protected void paintComponent(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
             g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            
             if (hasFocus() || isHovered) {
                 if (cursorImage != null) g2d.drawImage(cursorImage, 10, (getHeight()-cursorImage.getHeight()*4)/2, cursorImage.getWidth()*4, cursorImage.getHeight()*4, null);
             }
+
             g2d.setFont(getFont());
             g2d.setColor(new Color(95, 85, 105)); g2d.drawString(getText(), getInsets().left + 2, (getHeight()/2)+12);
             g2d.setColor(getForeground()); g2d.drawString(getText(), getInsets().left, (getHeight()/2)+10);

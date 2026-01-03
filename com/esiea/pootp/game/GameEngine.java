@@ -17,17 +17,17 @@ import java.util.ArrayList;
 public class GameEngine {
     private Player player;
     private Player enemy;
-    private boolean isWildBattle; // Si vrai -> Capture possible. Sinon -> Duel de dresseurs.
+    /** Indique si le combat est un combat sauvage (capture possible) ou un duel de dresseurs */
+    private boolean isWildBattle;
     private GameWindow window;
     
-    // Action à exécuter UNIQUEMENT si le joueur gagne (Donner XP, objets, etc.)
-    // C'est PokemonApp qui définit cette action.
+    /** Action à exécuter UNIQUEMENT si le joueur gagne (Donner XP, objets, etc.)
+    * C'est PokemonApp qui définit cette action.
+     */
     private Runnable onVictory;
 
     /**
      * Structure pour stocker le choix du joueur avant de l'exécuter.
-     * On a besoin de stocker ça car le joueur choisit d'abord, 
-     * mais l'action ne se lance que si sa vitesse est suffisante.
      */
     private class ActionChoice {
         int type; // 1 = Attaque, 2 = Objet, 3 = Changement de Pokémon (Switch)
@@ -36,6 +36,13 @@ public class GameEngine {
         int switchIndex; // Quel slot d'équipe ? (si type 3)
     }
 
+    /**
+     * Constructor for GameEngine
+     * @param player the player
+     * @param enemy the enemy player
+     * @param isWildBattle true if it's a wild battle
+     * @param window the game window
+     */
     public GameEngine(Player player, Player enemy, boolean isWildBattle, GameWindow window) {
         this.player = player;
         this.enemy = enemy;
@@ -44,6 +51,10 @@ public class GameEngine {
         this.window.setGameEngine(this); // On donne une référence du moteur à la fenêtre pour qu'elle puisse nous parler.
     }
 
+    /**
+     * Set the action to execute on victory
+     * @param action the action to execute
+     */
     public void setOnVictory(Runnable action) {
         this.onVictory = action;
     }
@@ -68,7 +79,10 @@ public class GameEngine {
     //              MÉTHODES D'ENTRÉE (Appelées quand on clique sur un bouton)
     // =========================================================================
 
-    // Le joueur a cliqué sur une Attaque
+    /**
+     * Handle player attack action
+     * @param attack the attack chosen by the player
+     */
     public void onPlayerAttack(Attack attack) {
         if (isBattleOver()) return; // Sécurité
         ActionChoice playerAction = new ActionChoice();
@@ -77,7 +91,10 @@ public class GameEngine {
         processTurn(playerAction); // On lance la résolution du tour
     }
 
-    // Le joueur a cliqué sur un Objet (Sac)
+    /**
+     * Handle player use item action
+     * @param item the item chosen by the player
+     */
     public void onPlayerUseItem(Item item) {
         if (isBattleOver()) return;
         ActionChoice playerAction = new ActionChoice();
@@ -86,7 +103,10 @@ public class GameEngine {
         processTurn(playerAction);
     }
 
-    // Le joueur a choisi un Pokémon (Équipe)
+    /**
+     * Handle player switch monster action
+     * @param slotIndex the index of the monster to switch to
+     */
     public void onPlayerSwitch(int slotIndex) {
         if (isBattleOver()) return;
         ActionChoice playerAction = new ActionChoice();
@@ -102,6 +122,7 @@ public class GameEngine {
     /**
      * Calcule qui joue en premier et enchaîne les actions.
      * C'est ici que la complexité asynchrone est gérée.
+     * @param playerAction the action chosen by the player
      */
     private void processTurn(ActionChoice playerAction) {
         ActionChoice enemyAction = AIChoice(); // L'ennemi choisit son coup (IA simple)
@@ -163,6 +184,10 @@ public class GameEngine {
 
     /**
      * Exécute une action unique (Switch, Objet ou Attaque).
+     * @param actor Le joueur qui agit.
+     * @param action L'action choisie par ce joueur.
+     * @param attacker Le monstre qui agit (avant action).
+     * @param defender Le monstre cible (avant action).
      * @param nextStep Le code à lancer quand tout est fini (affiché).
      */
     private void executeAction(Player actor, ActionChoice action, Monster attacker, Monster defender, Runnable nextStep) {
@@ -245,6 +270,7 @@ public class GameEngine {
     /**
      * Vérifie si le combat doit s'arrêter ou si un Pokémon est KO.
      * Si tout va bien, appelle 'onContinue'.
+     * @param onContinue le code à exécuter si le combat continue
      */
     private void checkBattleEndAndContinue(Runnable onContinue) {
         // 1. Victoire (Ennemi n'a plus de pokémon)
@@ -279,6 +305,8 @@ public class GameEngine {
 
     /**
      * Gère le remplacement forcé d'un Pokémon KO.
+     * @param p Le joueur dont le Pokémon est KO.
+     * @param onComplete Le code à exécuter une fois le remplacement fait.
      */
     private void handleKOSwitch(Player p, Runnable onComplete) {
         Monster deadMon = p.getTeam().get(0); // Le mort est forcément celui actif (0)
@@ -322,6 +350,11 @@ public class GameEngine {
     // =========================================================================
 
     // Tente de capturer un monstre
+    /**
+     * Try to capture a wild monster
+     * @param wildMonster the wild monster to capture
+     * @param failCallback the callback to execute if capture fails
+     */
     private void tryCapture(Monster wildMonster, Runnable failCallback) {
         int maxHp = wildMonster.getStartingHp();
         int currentHp = wildMonster.getHp();
@@ -350,11 +383,18 @@ public class GameEngine {
         }
     }
 
+    /**
+     * Fin du tour : réaffiche le menu principal.
+     */
     private void endTurn() {
         window.showMainMenuButtons(); // Le tour est fini, on réaffiche le menu
     }
 
     // IA basique pour l'ennemi
+    /**
+     * AI chooses an action for the enemy
+     * @return the action chosen by the AI
+     */
     private ActionChoice AIChoice() {
         ActionChoice action = new ActionChoice();
         Monster active = enemy.getActiveMonster();
@@ -373,10 +413,18 @@ public class GameEngine {
         return action;
     }
     
+
+    /**
+     * Check if the battle is over
+     * @return true if the battle is over, false otherwise
+     */
     private boolean isBattleOver() {
         return player.hasLost() || enemy.hasLost();
     }
 
+    /**
+     * Update the graphics on the screen
+     */
     public void updateGraphics() {
         // Demande au panneau graphique de se mettre à jour
         window.getBattlePanel().updateMonsters(player.getActiveMonster(), enemy.getActiveMonster());

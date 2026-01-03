@@ -13,6 +13,11 @@ public class SpriteManager {
     
     private static Map<String, BufferedImage> cache = new HashMap<>();
 
+    /**
+     * Load an image with caching
+     * @param path Path to the image file
+     * @return Loaded BufferedImage
+     */
     public static BufferedImage loadImage(String path) { // Charge une image avec mise en cache
         if (cache.containsKey(path)) {
             return cache.get(path);
@@ -32,6 +37,13 @@ public class SpriteManager {
         }
     }
 
+
+    /**
+     * Get the sprite of a Pokémon
+     * @param name Name of the Pokémon
+     * @param isBack True for back sprite, false for front sprite
+     * @return BufferedImage of the Pokémon sprite
+     */
     public static BufferedImage getPokemonSprite(String name, boolean isBack) { // Récupère le sprite d'un Pokémon
         String folder = isBack ? "com/esiea/pootp/resources/pokemon/back/" : "com/esiea/pootp/resources/pokemon/front/";
         return loadImage(folder + name.toLowerCase() + ".png");
@@ -39,6 +51,9 @@ public class SpriteManager {
 
     /**
      * Charge une animation depuis un JSON et un PNG
+     * @param jsonPath Chemin vers le fichier JSON
+     * @param imagePath Chemin vers le fichier PNG
+     * @return Animation chargée
      */
     public static Animation loadAnimation(String jsonPath, String imagePath) {
         BufferedImage spriteSheet = loadImage(imagePath);
@@ -88,6 +103,14 @@ public class SpriteManager {
         }
     }
 
+
+    /**
+     * Récupère une frame spécifique depuis un atlas TexturePacker
+     * @param jsonPath Chemin vers le fichier JSON
+     * @param imagePath Chemin vers le fichier PNG
+     * @param frameName Nom de la frame à récupérer
+     * @return BufferedImage de la frame demandée
+     */
     public static BufferedImage getFrameFromAtlas(String jsonPath, String imagePath, String frameName) {
         BufferedImage spriteSheet = loadImage(imagePath);
         if (spriteSheet == null) return null;
@@ -123,10 +146,18 @@ public class SpriteManager {
     }
     
     // Helper pour les icônes
+    /**
+     * Get the icon of a Pokémon
+     * @param name Name of the Pokémon
+     * @return BufferedImage of the Pokémon icon
+     */
     public static BufferedImage getPokemonIcon(String name) {
         return loadImage("com/esiea/pootp/resources/icons/" + name.toLowerCase() + ".png");
     }
 
+    /**
+     * Helper class to store frame data
+     */
     private static class FrameData {
         String name;
         BufferedImage img;

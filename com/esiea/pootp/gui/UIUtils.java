@@ -10,6 +10,12 @@ public class UIUtils {
     /**
      * Dessine une image en 9-slice scaling.
      * Utile pour les fenêtres/redimensionnables.
+     * @param g2 Graphics2D context
+     * @param img Image to draw
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param width Width to draw
+     * @param height Height to draw
      */
     public static void draw9Slice(Graphics2D g2, BufferedImage img, int x, int y, int width, int height) {
         if (img == null) return;
@@ -53,6 +59,8 @@ public class UIUtils {
     
     /**
      * Charge une police personnalisée (ex: .ttf).
+     * @param size Taille de la police
+     * @return Font chargée
      */
     public static Font loadPixelFont(float size) {
         try {

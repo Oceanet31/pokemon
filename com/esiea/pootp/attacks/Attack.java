@@ -9,6 +9,7 @@ public class Attack{
     private int power;
     private double failProbability;
 
+    /* Constructor for Attack */
     public Attack(String name, ElementType type, int nbUse, int power, double failProbability) {
         this.name = name;
         this.type = type;
@@ -17,36 +18,72 @@ public class Attack{
         this.failProbability = failProbability;
     }
 
+    /**
+     * Get the name of the attack
+     * @return name of the attack
+     */
     public String getName(){
         return this.name;
     }
 
+    /**
+     * Get the type of the attack
+     * @return type of the attack
+     */
     public ElementType getType(){
         return this.type;
     }
 
+
+    /**
+     * Get the number of uses left for the attack
+     * @return number of uses left
+     */
     public int getNbUse(){
         return this.nbUse;
     }
 
+
+    /**
+     * Set the number of uses left for the attack
+     * @param nbUse number of uses left
+     */
     public void setNbUse(int nbUse){
         this.nbUse = nbUse;
     }
 
+
+    /**
+     * Get the power of the attack
+     * @return power of the attack
+     */
     public int getPower(){
         return this.power;
     }
 
+
+    /**
+     * Get the fail probability of the attack
+     * @return fail probability of the attack
+     */
     public double getFailProbability(){
         return this.failProbability;
     }
 
+
+    /**
+     * Decrease the number of uses left for the attack by 1
+     */
     public void attackUsed(){
         if(this.nbUse > 0){
             this.nbUse -= 1;
         }
     }
 
+    /**
+     * Get the accuracy of the attack
+     * @return accuracy of the attack
+     */
     public double getAccuracy(){
         return 1.0 - this.failProbability;
     }

@@ -6,12 +6,26 @@ public class BugMonster extends NatureMonster{
 
     private int attackCount;
 
+    /**
+     * Constructor for BugMonster
+     * @param name Name of the monster
+     * @param hp Health points of the monster
+     * @param defense Defense stat of the monster
+     * @param attack Attack stat of the monster
+     * @param speed Speed stat of the monster
+     */
     public BugMonster(String name, int hp, int defense, double attack, int speed){
         super(name, hp, defense, attack, speed);
         this.attackCount = 0;
     }
 
 
+    /**
+     * Perform an attack on a target monster
+     * @param target Target monster to attack
+     * @param attack Attack to use
+     */
+    @Override
     public void attack(Monster target, Attack attack){
         this.recoverHealth(target);
 
@@ -42,6 +56,12 @@ public class BugMonster extends NatureMonster{
     }
 
 
+    /**
+     * Handle being attacked by another monster
+     * @param attacker Attacking monster
+     * @param attack Attack used
+     */
+    @Override
     public void getAttacked(Monster attacker, Attack attack){
 
         double damage = attacker.damages(this); //Calculate damage from attacker

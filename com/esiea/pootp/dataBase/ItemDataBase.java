@@ -10,10 +10,18 @@ import java.util.Scanner;
 public class ItemDataBase {
     private ArrayList<Item> items;
 
+    /**
+     * Constructor for ItemDataBase
+     */
     public ItemDataBase(){
         this.items = new ArrayList<Item>();
     }
 
+    /**
+     * Load items from a file and populate the items list
+     * @param file the file containing item data
+     * @throws FileNotFoundException if the file is not found
+     */
     public void loadItemsFromFile(File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file); 
         scanner.useLocale(java.util.Locale.US); 
@@ -85,6 +93,10 @@ public class ItemDataBase {
         scanner.close();
     }
 
+    /**
+     * Get the list of items
+     * @return list of items
+     */
     public ArrayList<Item> getItems(){
         return this.items;
     }

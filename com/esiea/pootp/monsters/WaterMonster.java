@@ -8,6 +8,16 @@ public class WaterMonster extends Monster{
     private double fallChance;
     private int floodDuration;
     
+    /**
+     * Constructor for WaterMonster
+     * @param name Name of the monster
+     * @param hp Health points of the monster
+     * @param defense Defense stat of the monster
+     * @param attack Attack stat of the monster
+     * @param speed Speed stat of the monster
+     * @param floodChance Chance to flood the terrain
+     * @param fallChance Chance for attacker to fall on flooded terrain
+     */
     public WaterMonster(String name, int hp, int defense, double attack, int speed, double floodChance, double fallChance){
         super(name,ElementType.WATER,hp,defense,attack,speed);
         this.floodChance = floodChance;
@@ -15,7 +25,12 @@ public class WaterMonster extends Monster{
         this.floodDuration = 0;
     }
 
-    //Attack opponent monster
+    @Override
+    /**
+     * Perform an attack on a target monster
+     * @param enemy Target monster to attack
+     * @param attack Attack to use
+     */
     public void attack(Monster enemy, Attack attack){
 
         double damageBase = this.damages(enemy);
@@ -41,6 +56,13 @@ public class WaterMonster extends Monster{
         enemy.getAttacked(this, attack);
     }
 
+
+    /**
+     * Handle being attacked by another monster
+     * @param attacker Attacking monster
+     * @param attack Attack used
+     */
+    @Override
     public void getAttacked(Monster attacker, Attack attack){
 
         double damage = attacker.damages(this); //Calculate damage from attacker
@@ -79,13 +101,26 @@ public class WaterMonster extends Monster{
         }
     }
 
+    /**
+     * Check if the terrain is flooded
+     * @return true if flooded, false otherwise
+     */
     public boolean isTerrainFlooded() {
         return floodDuration > 0;
     }
 
+    /**
+     * Get the flood chance of the monster
+     * @return flood chance
+     */
     public double getFloodChance() {
         return this.floodChance;
     }
+
+    /**
+     * Get the fall chance of the monster
+     * @return fall chance
+     */
     public double getFallChance() {
         return this.fallChance;
     }

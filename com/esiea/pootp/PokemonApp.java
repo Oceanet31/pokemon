@@ -20,6 +20,11 @@ public class PokemonApp {
     public static AttackDataBase attackDB = new AttackDataBase();
     static ItemDataBase itemDB = new ItemDataBase();
 
+    /**
+     * Main method to start the Pokémon application
+     * @param args command line arguments
+     * @throws FileNotFoundException if any data file is not found
+     */
     public static void main(String[] args) throws FileNotFoundException {
 
         try { 
@@ -57,6 +62,13 @@ public class PokemonApp {
         startNextBattle(player, window, 1);
     }
 
+
+    /**
+     * Start the next battle for the player
+     * @param player The player
+     * @param window The game window
+     * @param round The current round number
+     */
     public static void startNextBattle(Player player, GameWindow window, int round) {
         
         if (player.hasLost()) return;
@@ -118,6 +130,11 @@ public class PokemonApp {
         battle.startBattle();
     }
 
+
+    /**
+     * Create a random monster from the database
+     * @return a new Monster instance
+     */
     public static Monster createRandomMonster() {
         ArrayList<Monster> templates = monsterDB.getMonsters();
         if (templates.isEmpty()) return null;
@@ -128,6 +145,11 @@ public class PokemonApp {
         return newMonster;
     }
 
+
+    /**
+     * Assign random compatible attacks to a monster
+     * @param m Monster to assign attacks to
+     */
     public static void assignRandomAttacks(Monster m) {
         ArrayList<Attack> allAttacks = attackDB.getAttacks(); 
         ArrayList<Attack> compatible = new ArrayList<>();
@@ -142,6 +164,11 @@ public class PokemonApp {
         }
     }
 
+
+    /**
+     * Clone a monster based on a template
+     * @param template Monster to clone
+     */
     public static Monster cloneMonster(Monster template) {
         if (template == null) return null;
         Monster newMonster = null;

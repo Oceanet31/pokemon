@@ -47,6 +47,13 @@ public class TeamPanel extends JPanel {
     private String hpJson       = PATH_TEAM + "party_slot_hp_overlay.json";
     private String hpImg        = PATH_TEAM + "party_slot_hp_overlay.png";
 
+
+    /**
+     * Constructor for TeamPanel
+     * @param player Player whose team is displayed
+     * @param onClose Action to perform on closing the panel
+     * @param onSwitch Action to perform when switching Pokémon (index of selected slot)
+     */
     public TeamPanel(Player player, Runnable onClose, Consumer<Integer> onSwitch) {
         this.player = player;
         this.onClose = onClose;
@@ -105,6 +112,10 @@ public class TeamPanel extends JPanel {
         startAnimation();
     }
 
+
+    /**
+     * Start the icon bounce animation
+     */
     private void startAnimation() {
         animTimer = new Timer(30, e -> {
             long now = System.currentTimeMillis();
@@ -115,11 +126,17 @@ public class TeamPanel extends JPanel {
         animTimer.start();
     }
 
+    /**
+     * Stop the icon bounce animation
+     */
     private void stopAnimation() {
         if (animTimer != null && animTimer.isRunning()) animTimer.stop();
     }
 
     // Ouvre le menu "Envoyer / Retour" au dessus du slot sélectionné
+    /**
+     * Open the context menu
+     */
     private void openContextMenu() {
         if (contextMenu != null) return;
         contextMenu = new ContextMenu();
@@ -129,6 +146,9 @@ public class TeamPanel extends JPanel {
         this.revalidate(); this.repaint();
     }
 
+    /**
+     * Close the context menu
+     */
     private void closeContextMenu() {
         if (contextMenu != null) {
             this.remove(contextMenu);
@@ -138,6 +158,11 @@ public class TeamPanel extends JPanel {
     }
 
     // Vérifie si le clic est dans les coordonnées d'un slot
+    /**
+     * Handle click on a slot
+     * @param x X coordinate of the click
+     * @param y Y coordinate of the click
+     */
     private void handleSlotClick(int x, int y) {
         List<Monster> team = player.getTeam();
         
@@ -159,6 +184,10 @@ public class TeamPanel extends JPanel {
     }
 
     @Override
+    /**
+     * Paint the TeamPanel
+     * @param g Graphics context
+     */
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
@@ -188,6 +217,10 @@ public class TeamPanel extends JPanel {
         drawBottomBar(g2);
     }
 
+    /**
+     * Draw the bottom text bar
+     * @param g2 Graphics2D context
+     */
     private void drawBottomBar(Graphics2D g2) {
         int w = getWidth(); int h = getHeight();
         int boxX = 0; int boxY = h - 130; int boxW = 880; int boxH = 95;
@@ -204,12 +237,28 @@ public class TeamPanel extends JPanel {
     }
 
     // Utilitaire pour dessiner du texte avec une ombre
+    /**
+     * Draw text with shadow
+     * @param g2 Graphics2D context
+     * @param text Text to draw
+     * @param x X coordinate
+     * @param y Y coordinate
+     */
     private void drawShadowText(Graphics2D g2, String text, int x, int y) {
         g2.setColor(new Color(95, 85, 105)); g2.drawString(text, x + 2, y + 2); 
         g2.setColor(Color.WHITE); g2.drawString(text, x, y);
     }
 
+
     // Dessin spécifique du gros slot principal
+    /**
+     * Draw the main slot
+     * @param g2 Graphics2D context
+     * @param m Monster to draw
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param isSelected True if the slot is selected
+     */
     private void drawMainSlot(Graphics2D g2, Monster m, int x, int y, boolean isSelected) {
         String frame = (m.getHp() > 0) ? "party_slot_main" : "party_slot_main_fnt"; // FNT = Faint (KO)
         if (isSelected) frame += "_sel";
@@ -227,7 +276,17 @@ public class TeamPanel extends JPanel {
         if (icon != null) g2.drawImage(icon, x, y + iconOffsetY, icon.getWidth() * 3, icon.getHeight() * 3, null);
     }
 
+
+
     // Dessin des petits slots
+    /**
+     * Draw a sub slot
+     * @param g2 Graphics2D context
+     * @param m Monster to draw
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param isSelected True if the slot is selected
+     */
     private void drawSubSlot(Graphics2D g2, Monster m, int x, int y, boolean isSelected) {
         String frame = (m.getHp() > 0) ? "party_slot" : "party_slot_fnt";
         if (isSelected) frame += "_sel";
@@ -248,9 +307,15 @@ public class TeamPanel extends JPanel {
         if (icon != null) g2.drawImage(icon, x - 30, y - 30 + iconOffsetY, icon.getWidth() * 3, icon.getHeight() * 3, null);
     }
 
+
     /**
      * DESSIN DE LA BARRE DE VIE
      * Cette méthode calcule la largeur de la jauge colorée en fonction des PV.
+     * @param g2 Graphics2D context
+     * @param m Monster whose HP bar is drawn
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param showText True to show HP text, false otherwise
      */
     private void drawHPBar(Graphics2D g2, Monster m, int x, int y, boolean showText) {
         // 1. Fond de la barre
@@ -292,8 +357,16 @@ public class TeamPanel extends JPanel {
         }
     }
 
-    // --- CLASSE INTERNE DU MENU CONTEXTUEL ---
+
+
+    /**
+     * Menu contextuel "Envoyer / Retour"
+     */
     private class ContextMenu extends JPanel {
+
+        /**
+         * Constructor for ContextMenu
+         */
         public ContextMenu() {
             setOpaque(false);
             setLayout(new GridLayout(2, 1, 0, -10)); 
@@ -314,7 +387,13 @@ public class TeamPanel extends JPanel {
             btnBack.addActionListener(e -> closeContextMenu());
             this.add(btnBack);
         }
-        @Override protected void paintComponent(Graphics g) {
+        
+        @Override 
+        /**
+         * Paint the ContextMenu
+         * @param g Graphics context
+         */
+        protected void paintComponent(Graphics g) {
             // Dessine un cadre style fenêtre
             if (windowFrame != null) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -327,9 +406,19 @@ public class TeamPanel extends JPanel {
     }
 
     // Classe Bouton Standard
+    /**
+     * TeamMenuButton is a custom JButton for the team menu
+     */
     private class TeamMenuButton extends JButton {
+
         private boolean isHovered = false;
+
+        /**
+         * Constructor for TeamMenuButton
+         * @param text Button text
+         */
         public TeamMenuButton(String text) {
+
             super(text);
             this.setFont(pixelFont.deriveFont(48f)); 
             this.setForeground(Color.WHITE);
@@ -337,12 +426,19 @@ public class TeamPanel extends JPanel {
             this.setBorderPainted(false); this.setHorizontalAlignment(SwingConstants.LEFT);
             this.setBorder(new EmptyBorder(0, 40, 0, 0)); 
             this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
             addMouseListener(new MouseAdapter() {
                 @Override public void mouseEntered(MouseEvent e) { isHovered = true; repaint(); }
                 @Override public void mouseExited(MouseEvent e) { isHovered = false; repaint(); }
             });
         }
-        @Override protected void paintComponent(Graphics g) {
+
+        @Override 
+        /**
+         * Paint the TeamMenuButton
+         * @param g Graphics context
+         */
+        protected void paintComponent(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
             g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);

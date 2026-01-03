@@ -40,13 +40,16 @@ public class BattlePanel extends JPanel {
     private Timer gameLoop;               // Boucle infinie qui redessine l'écran 10 fois par seconde
     private Font pixelFont;               // Police d'écriture style rétro
 
+    /**
+     * Constructor for BattlePanel
+     */
     public BattlePanel() {
         this.setBackground(Color.BLACK);
         
         // =========================================================
         // 1. CHARGEMENT DES RESSOURCES (Au démarrage)
         // =========================================================
-        
+        //UTILITE DE LE FAIRE MAINTENANT?????
         // Chargement des décors
         this.background  = SpriteManager.loadImage("com/esiea/pootp/resources/background/grass_bg.png"); 
         this.podPlayer   = SpriteManager.loadImage("com/esiea/pootp/resources/background/grass_a.png"); 
@@ -79,6 +82,8 @@ public class BattlePanel extends JPanel {
 
     /**
      * Appelé par le GameEngine quand les monstres changent (Switch, KO, Début de combat).
+     * @param player le monstre du joueur
+     * @param enemy le monstre ennemi
      */
     public void updateMonsters(Monster player, Monster enemy) {
         // Mise à jour du joueur
@@ -98,7 +103,8 @@ public class BattlePanel extends JPanel {
 
     /**
      * Tente de charger le fichier .json d'animation associé au monstre.
-     * isBack = true si c'est le monstre du joueur (vu de dos).
+     * @param m Monstre dont on veut l'animation
+     * @param isBack true si c'est pour le joueur (vue de dos), false
      */
     private Animation loadMonsterAnimation(Monster m, boolean isBack) {
         String folder = isBack ? "com/esiea/pootp/resources/pokemon/back/" : "com/esiea/pootp/resources/pokemon/front/";
@@ -118,6 +124,10 @@ public class BattlePanel extends JPanel {
     //              MÉTHODE PRINCIPALE DE DESSIN
     // =========================================================
     @Override
+    /**
+     * Redessine tout le panneau de combat
+     * @param g Graphics context
+     */
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
@@ -210,6 +220,12 @@ public class BattlePanel extends JPanel {
 
     /**
      * Dessine la barre de vie et le nom de l'ennemi.
+     * @param g Graphics2D context
+     * @param m Monstre ennemi
+     * @param x Position X du HUD
+     * @param y Position Y du HUD
+     * @param w Largeur du HUD
+     * @param h Hauteur du HUD
      */
     private void drawEnemyHUD(Graphics2D g, Monster m, int x, int y, int w, int h) {
         // Fond du cadre
@@ -261,6 +277,12 @@ public class BattlePanel extends JPanel {
 
     /**
      * Dessine l'interface du joueur (plus détaillée : affiche les PV exacts et l'EXP).
+     * @param g Graphics2D context
+     * @param m Monstre du joueur
+     * @param x Position X du HUD
+     * @param y Position Y du HUD
+     * @param w Largeur du HUD
+     * @param h Hauteur du HUD
      */
     private void drawPlayerHUD(Graphics2D g, Monster m, int x, int y, int w, int h) {
         // Fond
