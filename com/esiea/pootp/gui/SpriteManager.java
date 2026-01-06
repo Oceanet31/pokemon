@@ -18,7 +18,7 @@ public class SpriteManager {
      * @param path Path to the image file
      * @return Loaded BufferedImage
      */
-    public static BufferedImage loadImage(String path) { // Charge une image avec mise en cache
+    public static BufferedImage loadImage(String path) {
         if (cache.containsKey(path)) {
             return cache.get(path);
         }
@@ -94,7 +94,6 @@ public class SpriteManager {
                 finalFrames.add(fd.img);
             }
 
-            // MODIFICATION ICI : 10 FPS (au lieu de 30) pour ralentir
             return new Animation(finalFrames, 10); 
 
         } catch (IOException e) {

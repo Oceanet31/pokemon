@@ -176,9 +176,13 @@ public class GameWindow extends JFrame {
         leftContainer.add(logArea, BorderLayout.CENTER);
         bottomPanel.add(leftContainer, BorderLayout.CENTER);
 
-        JPanel rightContainer = new JPanel(new BorderLayout()); rightContainer.setOpaque(false);
+        //Partie droite avec les boutons
+        JPanel rightContainer = new JPanel(new BorderLayout()); 
+        rightContainer.setOpaque(false);
+
         buttonPanel = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
+            @Override 
+            protected void paintComponent(Graphics g) {
                 if (windowFrame != null) {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
@@ -327,7 +331,7 @@ public class GameWindow extends JFrame {
                     case LIGHTNING: srcY = 56;  break;
                     case EARTH:     srcY = 154; break;
                     case NATURE:    srcY = 140; break; 
-                    case NORMAL:    srcY = 182; break; // Le type Normal est bien là
+                    case NORMAL:    srcY = 182; break;
                     default:        srcY = 0;   break;
                 }
                 g2.drawImage(typesAtlas, leftX, topY, leftX + iconW*typeScale, topY + iconH*typeScale, 0, srcY, iconW, srcY + iconH, null);
@@ -336,7 +340,7 @@ public class GameWindow extends JFrame {
             g2.setFont(pixelFont.deriveFont(33f));
             int line1Y = 75; int line2Y = 105; int line3Y = 135;
             
-            // Affichage dynamique des PP (se met à jour en temps réel)
+            // Affichage dynamique des PP
             drawShadowText(g2, "PP", leftX + 10, line1Y);
             drawShadowText(g2, "" + currentAttack.getNbUse(), rightX + 10, line1Y);
 

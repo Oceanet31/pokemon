@@ -132,11 +132,10 @@ public class BattlePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
-        // Astuce : Désactive le lissage (Anti-aliasing) pour garder les pixels bien nets (Retro Style)
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
-        // --- 1. DESSIN DU FOND ---
+        // --- DESSIN DU FOND ---
         if (background != null) {
             g2d.drawImage(background, 0, 0, getWidth(), getHeight(), null);
         } else {
@@ -146,17 +145,32 @@ public class BattlePanel extends JPanel {
 
         int groundY = getHeight() - 180; // Niveau du sol visuel (au-dessus du menu du bas)
 
-        // --- 2. DESSIN DES PODS (Plateformes) ---
+
+        // --- DESSIN DES PODS (Plateformes) ---
         if (podEnemy != null) {
-            int w = 1000; int h = 500;
-            g2d.drawImage(podEnemy, 200, getHeight() - h - 50, w, h, null);
-        }
-        if (podPlayer != null) {
-            int w = 1000; int h = 500;
-            g2d.drawImage(podPlayer, getWidth() - w - 200, getHeight() - h, w, h, null);
+            //Pods size
+            int w = 1000; 
+            int h = 500;
+
+            int x = getWidth() - w;
+            int y = getHeight()/2 - h + getHeight()/3;
+
+            g2d.drawImage(podEnemy, x, y, w, h, null);
         }
 
-        // --- 3. DESSIN DE L'ENNEMI ---
+
+        if (podPlayer != null) {
+            int w = 1000; 
+            int h = 500;
+
+            int x = getWidth()/2 - w;
+            int y = getHeight()/2;
+
+            g2d.drawImage(podEnemy, x, y, w, h, null);
+        }
+
+
+        // --- DESSIN DE L'ENNEMI ---
         if (enemyMonster != null) {
             BufferedImage spriteToDraw = null;
 
@@ -171,10 +185,9 @@ public class BattlePanel extends JPanel {
                 int scale = 4; // Zoom pour l'ennemi (il est loin)
                 int w = spriteToDraw.getWidth() * scale;
                 int h = spriteToDraw.getHeight() * scale;
-                
-                // Positionnement calculé
-                int x = getWidth() - 370; 
-                int y = 250 - h + 60;
+
+                int x = getWidth() - w - 250;
+                int y = getHeight()/2 - 200;
                 
                 g2d.drawImage(spriteToDraw, x, y, w, h, null);
             }
@@ -183,7 +196,7 @@ public class BattlePanel extends JPanel {
             drawEnemyHUD(g2d, enemyMonster, 40, 40, 450, 125);
         }
 
-        // --- 4. DESSIN DU JOUEUR ---
+        // --- DESSIN DU JOUEUR ---
         if (playerMonster != null) {
             BufferedImage spriteToDraw = null;
 
@@ -198,8 +211,8 @@ public class BattlePanel extends JPanel {
                 int w = spriteToDraw.getWidth() * scale;
                 int h = spriteToDraw.getHeight() * scale;
                 
-                int x = 175; 
-                int y = groundY - h + 220; 
+                int x =  getWidth()/6; 
+                int y = getHeight()/2 + 50;
                 
                 g2d.drawImage(spriteToDraw, x, y, w, h, null);
             }
@@ -276,7 +289,7 @@ public class BattlePanel extends JPanel {
     }
 
     /**
-     * Dessine l'interface du joueur (plus détaillée : affiche les PV exacts et l'EXP).
+     * Dessine l'interface du joueur (plus détaillée : affiche les PV exacts et l'EXP).Fiche grise
      * @param g Graphics2D context
      * @param m Monstre du joueur
      * @param x Position X du HUD

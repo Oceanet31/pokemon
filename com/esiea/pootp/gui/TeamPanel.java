@@ -98,17 +98,6 @@ public class TeamPanel extends JPanel {
             }
         });
 
-        // Bouton "Sortir"
-        TeamMenuButton btnExit = new TeamMenuButton("Sortir");
-        btnExit.setBounds(940, 680, 200, 60); 
-        btnExit.addActionListener(e -> {
-            if (contextMenu == null) {
-                stopAnimation();
-                onClose.run(); // Appelle la fermeture gérée par GameWindow
-            }
-        });
-        this.add(btnExit);
-
         startAnimation();
     }
 
@@ -143,7 +132,8 @@ public class TeamPanel extends JPanel {
         contextMenu.setBounds(800, 480, 350, 180);
         this.add(contextMenu);
         this.setComponentZOrder(contextMenu, 0); // Met le menu au premier plan
-        this.revalidate(); this.repaint();
+        this.revalidate(); 
+        this.repaint();
     }
 
     /**
@@ -222,21 +212,38 @@ public class TeamPanel extends JPanel {
      * @param g2 Graphics2D context
      */
     private void drawBottomBar(Graphics2D g2) {
-        int w = getWidth(); int h = getHeight();
-        int boxX = 0; int boxY = h - 130; int boxW = 880; int boxH = 95;
+        int boxX = 0; 
+        int boxY = getHeight() - 170; 
+        int boxW = getWidth() - 70; 
+        int boxH = 70;
 
         if (windowFrame != null) {
             Graphics2D gFrame = (Graphics2D) g2.create();
-            gFrame.translate(boxX, boxY); gFrame.scale(4.0, 4.0);
+            gFrame.translate(boxX, boxY); 
+            gFrame.scale(4.0, 4.0);
             UIUtils.draw9Slice(gFrame, windowFrame, 0, 0, boxW / 4, boxH / 4);
             gFrame.dispose();
         }
+        
         g2.setFont(pixelFont.deriveFont(44f));
         String msg = (contextMenu != null) ? "Que faire avec ce Pokémon ?" : "Sélectionnez un Pokémon.";
-        drawShadowText(g2, msg, boxX + 40, boxY + 60);
+
+        //Placement du texte dans le cadre
+        drawShadowText(g2, msg, boxX + 40, boxY + 50);
+
+        // Bouton "Sortir"
+        TeamMenuButton btnExit = new TeamMenuButton("Sortir");
+        btnExit.setBounds(880,  boxY + 5 , 200, 60); 
+        btnExit.addActionListener(e -> {
+            if (contextMenu == null) {
+                stopAnimation();
+                onClose.run(); // Appelle la fermeture gérée par GameWindow
+            }
+        });
+        this.add(btnExit);
     }
 
-    // Utilitaire pour dessiner du texte avec une ombre
+
     /**
      * Draw text with shadow
      * @param g2 Graphics2D context
@@ -250,7 +257,6 @@ public class TeamPanel extends JPanel {
     }
 
 
-    // Dessin spécifique du gros slot principal
     /**
      * Draw the main slot
      * @param g2 Graphics2D context
@@ -260,7 +266,7 @@ public class TeamPanel extends JPanel {
      * @param isSelected True if the slot is selected
      */
     private void drawMainSlot(Graphics2D g2, Monster m, int x, int y, boolean isSelected) {
-        String frame = (m.getHp() > 0) ? "party_slot_main" : "party_slot_main_fnt"; // FNT = Faint (KO)
+        String frame = (m.getHp() > 0) ? "party_slot_main" : "party_slot_main_fnt";
         if (isSelected) frame += "_sel";
         BufferedImage slotImg = SpriteManager.getFrameFromAtlas(mainSlotJson, mainSlotImg, frame);
         if (slotImg != null) g2.drawImage(slotImg, x+1, y+7, slotImg.getWidth() * SCALE-40, slotImg.getHeight() * SCALE+5, null);
@@ -318,7 +324,7 @@ public class TeamPanel extends JPanel {
      * @param showText True to show HP text, false otherwise
      */
     private void drawHPBar(Graphics2D g2, Monster m, int x, int y, boolean showText) {
-        // 1. Fond de la barre
+        //Fond de la barre
         if (hpBarBg != null) {
             g2.drawImage(hpBarBg, x - 75, y - 20, hpBarBg.getWidth() * SCALE - 30, hpBarBg.getHeight() * SCALE, null);
         }
@@ -326,32 +332,32 @@ public class TeamPanel extends JPanel {
             g2.drawImage(lblPv, x-75, y-20, lblPv.getWidth()*SCALE, lblPv.getHeight()*SCALE, null);
         }
 
-        // 2. Calcul du ratio
+        //Calcul du ratio
         float ratio = (float) m.getHp() / m.getStartingHp();
         if (ratio < 0) ratio = 0; else if (ratio > 1) ratio = 1;
 
-        // 3. Choix couleur (Vert, Orange, Rouge)
-        String colorName = "high";
+        //Couleur de la barre
+        String colorName = "hight";
         if (ratio <= 0.2) colorName = "low";
         else if (ratio <= 0.5) colorName = "medium";
         
         BufferedImage colorImg = SpriteManager.getFrameFromAtlas(hpJson, hpImg, colorName);
         
-        // 4. Dessin de la couleur
+        //Dessin de la couleur
         if (colorImg != null && hpBarBg != null) {
-            // Calcul précis de la largeur disponible dans l'image de fond
+            // Largeur max
             int maxBarWidth = (hpBarBg.getWidth() * SCALE) - 104; 
             
             // Largeur réelle à afficher
             int currentW = (int) (maxBarWidth * ratio);
             
-            // On ne dessine que si la largeur est positive (évite bug affichage)
+            // On ne dessine que si la largeur est positive
             if (currentW > 0) {
                 g2.drawImage(colorImg, x - 16, y - 12, currentW, colorImg.getHeight() * SCALE, null);
             }
         }
 
-        // 5. Texte des HP
+        //Texte des HP
         if (showText) {
             drawShadowText(g2, m.getHp() + "/" + m.getStartingHp(), x + 150, y + 40);
         }
