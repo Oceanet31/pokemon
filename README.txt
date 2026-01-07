@@ -24,3 +24,8 @@ You won a battle when the wild monster have no more Pv, and you lose the whole g
 
 Everytime you won a battle, your active Monster gain Xp to level up.
 At each new level, your active Monster get all his Hp back, learn a new attack, and all his stats are increased by 10%.
+
+
+Revoir le nb utilisation des attaques
+Attaque a main nue si il n'a plus d'attaques
+Ne peut avoir que 5 items dans son inventaire
