@@ -313,11 +313,10 @@ public abstract class Monster{
     /**
      * Level up the monster
      */
-    private void levelUp() { //Méthode pour gérer le passage au niveau supérieur
+    private void levelUp() {
         this.level++;
         this.xp -= this.xpToNextLevel; // On garde le surplus d'XP
         
-        // La courbe d'XP devient plus dure (prochain niveau demande +20% d'XP)
         this.xpToNextLevel = (int)(this.xpToNextLevel * 1.2);
 
         System.out.println("\n " + this.name + " passe au niveau " + this.level + " !");
@@ -332,16 +331,22 @@ public abstract class Monster{
         this.healFullHP();
     }
 
+    /**
+     * Assign 4 attacks to the monster from the attack database
+     */
+    public void assignAttacks(){
+        for(int i=0; i<4; i++){
+            this.learnNewAttack();
+        }
+    }
     
     /**
      * Learn a new attack
      */
-    private void learnNewAttack() {
-        // 1. Récupérer toutes les attaques disponibles via PokemonApp
+    public void learnNewAttack() {
         ArrayList<Attack> allAttacks = PokemonApp.attackDB.getAttacks();
         ArrayList<Attack> learnableAttacks = new ArrayList<>();
 
-        // 2. Filtrer les attaques compatibles (Même type ou NATURE) et pas encore connues
         for (Attack a : allAttacks) {
             boolean isCompatible = (a.getType() == this.element || a.getType() == ElementType.NORMAL);
             boolean isKnown = this.attacks.contains(a);
@@ -351,7 +356,7 @@ public abstract class Monster{
             }
         }
 
-        // 3. Si des attaques sont disponibles, en apprendre une au hasard
+        
         if (!learnableAttacks.isEmpty()) {
             Random r = new Random();
             Attack newAttack = learnableAttacks.get(r.nextInt(learnableAttacks.size()));
@@ -360,7 +365,6 @@ public abstract class Monster{
                 this.attacks.add(newAttack);
                 System.out.println(this.name + " apprend l'attaque " + newAttack.getName() + " !");
             } else {
-                // Si déjà 4 attaques, on oublie la première (la plus vieille)
                 Attack forgotten = this.attacks.get(0);
                 this.attacks.remove(0);
                 this.attacks.add(newAttack);

@@ -8,11 +8,6 @@ import java.util.Scanner;
 
 public class AttackDataBase {
 
-    private double failProbability;
-    private int power;
-    private int nbUse;
-    private String name;
-    private ElementType type;
     private ArrayList<Attack> attacks;
 
     /**
@@ -39,11 +34,11 @@ public class AttackDataBase {
         int nbUse = 0;
         double failProbability = 0.0;
 
-        while (scanner.hasNext()) { // Tant qu'il y a des lignes à lire
+        while (scanner.hasNext()) {
 
-            String word = scanner.next(); // Lire le prochain mot
+            String word = scanner.next();
 
-            switch (word) { // Traiter en fonction du mot lu
+            switch (word) { 
 
                 case "Name":
                     name = scanner.next();
@@ -53,7 +48,7 @@ public class AttackDataBase {
 
                     String typeStr = scanner.next().toUpperCase();
 
-                    if (typeStr.equals("ELECTRIC")) {
+                    if (typeStr.equals("LIGHTNING")) {
 
                         type = ElementType.LIGHTNING;
 
@@ -73,6 +68,8 @@ public class AttackDataBase {
 
                         type = ElementType.FIRE; 
 
+                    }else if( typeStr.equals("NORMAL")) {
+                        type = ElementType.NORMAL;
                     }
                     break;
 

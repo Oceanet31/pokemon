@@ -14,4 +14,8 @@ public abstract class Item{
      * @return name of the item
      */
     abstract public String getName();
+
+    public boolean equals(Item item) {
+        return this.getName().equals(item.getName());
+    }
 }

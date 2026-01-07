@@ -64,7 +64,12 @@ public class Player {
      * @param item Item to add
      */
     public void addItemToInventory(Item item) {
-        this.inventory.put(item, this.inventory.getOrDefault(item, 0) + 1);
+        //Si il est dedans on incrémente
+        if(this.inventory.containsKey(item)) {
+            this.inventory.put(item, this.inventory.get(item) + 1);
+        } else {
+            this.inventory.put(item, 1);
+        }
     }
 
 

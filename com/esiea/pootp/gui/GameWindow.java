@@ -43,7 +43,7 @@ public class GameWindow extends JFrame {
     */
     public GameWindow(Player player) {
         this.player = player;
-        this.setTitle("Pokémon Java Edition");
+        this.setTitle("NotPokémon Java Edition");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(1200, 800);
         

@@ -312,10 +312,8 @@ public class GameEngine {
         Monster deadMon = p.getTeam().get(0); // Le mort est forcément celui actif (0)
         deadMon.setState(com.esiea.pootp.monsters.State.DEAD);
 
-        // 1. Message "Est KO"
         window.showDialog(deadMon.getName() + " est K.O. !", () -> {
             
-            // 2. Recherche automatique du prochain vivant
             int swapIndex = -1;
             for (int i = 0; i < p.getTeam().size(); i++) {
                 if (p.getTeam().get(i).getHp() > 0) {
@@ -326,20 +324,17 @@ public class GameEngine {
 
             if (swapIndex != -1) {
                 Monster newMon = p.getTeam().get(swapIndex);
-                
-                // IMPORTANT : On échange les positions.
-                // Le mort part au fond, le vivant vient en position 0 (Actif).
+
                 java.util.Collections.swap(p.getTeam(), 0, swapIndex);
                 
                 String msg = (p == player) ? "Go " + newMon.getName() + " !" : p.getName() + " envoie " + newMon.getName() + " !";
                 
-                // 3. Message d'envoi du nouveau
                 window.showDialog(msg, () -> {
                     updateGraphics();
                     onComplete.run(); // On reprend le tour là où il s'était arrêté
                 });
             } else {
-                // Cas impossible théoriquement si hasLost() fonctionne bien
+                
                 onComplete.run();
             }
         });

@@ -29,11 +29,6 @@ package com{
       package dataBase{
         
         class AttackDataBase{
-          - double failProbability
-          - int getPower
-          - int nbUse
-          - String name
-          - ElementType type
           - ArrayList<Attack> attacks
           
           + ArrayList<Attack> getAttack()
@@ -104,174 +99,6 @@ package com{
           + void useItem(Item, Monster)
           + boolean hasLost()
           + Monster getActiveMonster()
-        }
-      }
-      
-      package gui{
-        
-        class Animation{
-          - List<BufferdImage> frames
-          - int currentFrameIndex
-          - long lastFrameIndex
-          - long frameDelay
-          
-          + Animation(List<BufferdImage>, int)
-          + void update()
-          + BufferdImage getSprite()
-        }
-        
-        class BattlePanel{
-        
-          - Monster playerMonster
-          - Monster enemyMonster
-          - BufferdImage background
-          - BufferdImage podPlayer
-          - BufferdImage podEnemy
-          - BufferdImage hudPlayerBg
-          - BufferdImage hudEnemyBg
-          - BufferdImage hpBarAtlas
-          - BufferdImage expBarTexture
-          - BufferdImage lblPV
-          - BufferdImage lblEXP
-          - BufferdImage lblLv
-          - Animation playerAnimation
-          - Animation enemyAnimation
-          - Timer gameLoop
-          - Font pixelFont
-          
-          + void updateMonsters(Monster, Monster)
-          - Animation loadMonsterAnimation(Monster, boolean)
-          # void paintComponent(Graphics)
-          - void drawEnemyHUD(Graphics2D, Monster, int, int, int, int)
-          - void drawPlayerHUD(Graphics2D, Monster, int, int, int, int)
-        }
-        
-        class AttackInfoPanel{
-          - Attack currentAttack
-          + void updateInfo(Attack)
-          # void paintComponent(Graphics)
-          - void drawShadowText(Graphics2D, String, int, int)
-        }
-        
-        class BagOverlay{
-          # void paintComponent(Graphics)
-        }
-        
-        class MenuButton{
-          - boolean isHovered
-          
-          + MenuButton(String)
-          # paintComponent(Graphics)
-        }
-        
-        class GameWindow{
-          - BattlePanel battlePanel
-          - JPanel bottomPanel
-          - JPanel leftContainer
-          - JPanel buttonPanel
-          - JTextArea logArea
-          - BagOverlay bagOverlay
-          - TeamPanel teamOverlay
-          - Player player
-          - GameEngine gameEngine
-          - BufferedImage overlayBg
-          - BufferedImage windowFrame
-          - BufferedImage cursorImage
-          - BufferedImage typeAtlas
-          - BufferedImage categoriesAtlas
-          - Font pixelFont
-          - Timer textTimer
-          - String textToDisplay
-          - int textIndex
-          - Runnable onTextFinished
-          - boolean isTyping
-          
-          + GameWindow(Player)
-          + BattlePanel getBattlePanel()
-          + void setGameEngine(GameEngine)
-          + void showDialogue(String, Runnable)
-          - void updateTextTypeWriter()
-          + void addLog(String)
-          - void initBottomPanel(JPanel)
-          + void showMainMenuButtons()
-          + void showAttackMenu()
-          - MenuButton createMenuButton(String, ActionListener)
-          - void toggleBagMenu()
-          - void closeBagMenu()
-          - void reposBagMenu()
-          - void toggleTeamMenu()
-          - void closeTeamMenu()
-        }
-        
-        class FrameData{
-          - String name
-          - BufferedImage img
-          + FrameData(String, BufferedImage)
-        }
-        
-        class SpriteManager{
-          - {static} Map<String,BufferedImage> cache
-          
-          + {static} BufferedImage loadImage(String)
-          + {static} BufferedImage getPokemonSprite(String, boolean)
-          + {static} Animation loadAnimation(String, String)
-          + {static} BufferedImage getFrameFromAtlas(String, String, String)
-          + {static} BufferedImage getPokemonIcon(String)
-        }
-        
-        class ContextMenu{
-          # void paintComponent(Graphics)
-        }
-        
-        class TeamMenuButton{
-          - boolean isHovered
-          
-          + TeamMenuButton(String)
-          # void paintComponent(Graphics)
-        }
-        
-        class TeamPanel{
-          - Player player
-          - Runnable onClose
-          - Consumer<Integer> onSwitch
-          - int selectedSlot
-          - ContextMenu contextMenu
-          - Timer animTimer
-          - int iconOffsetY
-          - int SCALE = 4
-          - BufferedImage background
-          - BufferedImage hpBarBg
-          - BufferedImage lblPv
-          - BufferedImage lblLv
-          - BufferedImage cursorImage
-          - BufferedImage windowFrame
-          - Font pixelFont
-          - String PATH_TEAM = "com/esiea/pootp/resources/team/"
-          - String PATH_UI = "com/esiea/pootp/resources/ui/"
-          - String mainSlotJson
-          - String mainSlotImg
-          - String subSlotJson
-          - String subSlotImg
-          - String hpJson
-          - String hpImg
-          
-          + TeamPanel(Player, Runnable, Consumer<Integer>)
-          - void startAnimation()
-          - void stopAnimation()
-          - void openContextMenu()
-          - void closeContextMenu()
-          - void handleSlotClick(int, int)
-          # void paintComponent(Graphics)
-          - void drawBottomBar(Graphics2D)
-          - void drawShadowText(Graphics2D, String, int, int)
-          - void drawMainSlot(Graphics2D, Monster, int, int, boolean)
-          - void drawSubSlot(Graphics2D, Monster, int, int, boolean)
-          - void drawHPBar(Graphics2D, Monster, int, int, boolean)
-        }
-          
-        class UIUtils{
-          + {static} void draw9Slice(Graphics2D, BufferedImage, int, int, int, int)
-          + {static} Font loadPixelFont(float)
         }
       }
       
@@ -360,7 +187,8 @@ package com{
           + void applyStateEffects()
           + void gainXp(int)
           - void levelUp()
-          - void learnNewAttack()
+          + void assignAttacks()
+          + void learnNewAttack()
           - void increasedStat(double)
           + {abstract} void getAttacked(Monster)
           + {abstract} void attack(Monster)
@@ -416,6 +244,7 @@ package com{
         abstract class Item{
           + {abstract} void use(Monster)
           + {abstract} String getName()
+          + boolean equals(Item)
         }
         
         class Medicament{
@@ -470,16 +299,7 @@ package com{
 }
 
 
-JPanel 	<|-- BattlePanel
-JPanel 	<|-- AttackInfoPanel
-JPanel 	<|-- BagOverlay
-JPanel 	<|-- TeamPanel
-JPanel 	<|-- ContextMenu
 
-JFrame 	<|-- GameWindow
-
-JButton <|-- MenuButton
-JButton <|-- TeamMenuButton
 
 Monster <|-- FireMonster
 Monster <|-- EarthMonster
@@ -505,9 +325,6 @@ ItemDataBase "0..1" <-- "0..*" Item
 
 MonsterDataBase "0..1" <-- "0..*" Monster
 
-GameEngine <-- "2" Player
-GameEngine <-- GameWindow
-GameEngine <-- Runnable
 
 ActionChoice <-- Attack
 ActionChoice <-- Item
@@ -515,38 +332,6 @@ ActionChoice <-- Item
 Player "1" <-- "1..4" Monster
 Player "1" <-- "0..*" Item
 
-Animation <-- "0..*" BufferedImage
-
-BattlePanel <-- "2" Monster
-BattlePanel <-- "10" BufferedImage
-BattlePanel <-- "2" Animation
-BattlePanel <-- Timer
-BattlePanel <-- Font
-
-GameWindow <-- BattlePanel
-GameWindow <-- "3" JPanel
-GameWindow <-- JTextArea
-GameWindow <-- BagOverlay
-GameWindow <-- TeamPanel
-GameWindow <-- Player
-GameWindow <-- GameEngine
-GameWindow <-- "5" BufferedImage
-GameWindow <-- Font
-GameWindow <-- Timer
-GameWindow <-- Runnable
-
-AttackInfoPanel <-- Attack
-
-SpriteManager <--"0..*" BufferedImage
-
-FrameData <-- BufferedImage
-
-TeamPanel <-- Player
-TeamPanel <-- Runnable
-TeamPanel <-- ContextMenu
-TeamPanel <-- Timer
-TeamPanel <-- "6" BufferedImage
-TeamPanel <-- Font
 
 Monster <-- ElementType
 Monster <-- "4" Attack

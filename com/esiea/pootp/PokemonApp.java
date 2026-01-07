@@ -40,7 +40,7 @@ public class PokemonApp {
         
         Monster starter = monsterDB.getMonsters().get(0);
         if (starter != null) {
-            assignRandomAttacks(starter);
+            starter.assignAttacks();
             player.addMonsterToTeam(starter);
         }
         
@@ -89,30 +89,28 @@ public class PokemonApp {
 
         GameEngine battle = new GameEngine(player, enemy, isWild, window);
         
-        // --- CALLBACK DE VICTOIRE (XP + OBJET) ---
         battle.setOnVictory(() -> {
             Monster active = player.getActiveMonster();
             Monster defeated = enemy.getTeam().get(0); // Le monstre vaincu
             
             if(active != null) {
-                // 1. Gain d'XP (Ex: 50 * Niveau ennemi)
+                //Gain d'XP
                 int xpGained = 50 * defeated.getLevel();
                 window.showDialog(active.getName() + " gagne " + xpGained + " XP !", () -> {
                     active.gainXp(xpGained);
                     
-                    // 2. Gain d'Objet Aléatoire
+                    //Gain d'Objet Aléatoire
                     if (!itemDB.getItems().isEmpty()) {
-                         // On ajoute aussi des Pokéballs "manuellement" aux possibilités si elles ne sont pas dans le fichier
                         com.esiea.pootp.objects.Item loot;
-                        if (Math.random() < 0.3) { // 30% de chance d'avoir une pokeball
-                             loot = new com.esiea.pootp.objects.Pokeball();
+                        if (Math.random() < 0.3) {
+                            loot = new com.esiea.pootp.objects.Pokeball();
                         } else {
                              java.util.Random r = new java.util.Random();
                              loot = itemDB.getItems().get(r.nextInt(itemDB.getItems().size()));
                         }
                         
                         player.addItemToInventory(loot);
-                        
+
                         window.showDialog("Vous trouvez : " + loot.getName() + " !", () -> {
                             // Soin léger et combat suivant
                             active.setHp(active.getHp() + 10); 
@@ -141,7 +139,7 @@ public class PokemonApp {
         Random r = new Random();
         Monster template = templates.get(r.nextInt(templates.size()));
         Monster newMonster = cloneMonster(template);
-        if (newMonster != null) assignRandomAttacks(newMonster);
+        if (newMonster != null) newMonster.assignAttacks(); //assigner des attaques compatibles
         return newMonster;
     }
 

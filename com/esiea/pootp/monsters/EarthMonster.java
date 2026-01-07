@@ -36,15 +36,15 @@ public class EarthMonster extends Monster{
 
         if (!isProtected()){
 
-            if(Math.random() < this.fleeingChance){          //si non, 30% de chance d'inonder le terrain
+            if(Math.random() < this.fleeingChance){
 
                 double Rand = Math.random();
 
-                if(0.0 <= Rand && Rand < 0.33){           //10% de chance d'inonder pour 1 tour
+                if(0.0 <= Rand && Rand < 0.33){
                     this.fleeingDuration = 1;
-                } else if (0.33 <= Rand && Rand < 0.66){  //10% de chance d'inonder pour 2 tours
+                } else if (0.33 <= Rand && Rand < 0.66){
                     this.fleeingDuration = 2; 
-                } else if (0.66 <= Rand && Rand < 1){     //10% de chance d'inonder pour 3 tours
+                } else if (0.66 <= Rand && Rand < 1){
                     this.fleeingDuration = 3;
                 }
 
@@ -68,7 +68,7 @@ public class EarthMonster extends Monster{
         damage = damage / 2;
         System.out.println(this.getName() + " est sous terre et réduit les dégâts !");
         }
-        //------Special Effects------
+        
          switch(attacker.getElement()){
             case NATURE :
                 //Faiblesse monster m'inflige 2*damage
@@ -84,7 +84,6 @@ public class EarthMonster extends Monster{
                 damage = super.damages(this);
                 break;
         }
-        //---------------------------
 
         this.takeDamage(damage); //Apply damage to this monster
         
@@ -99,6 +98,6 @@ public class EarthMonster extends Monster{
     }
 
     public double getFleeingChance() {
-    return this.fleeingChance;
+        return this.fleeingChance;
     }
 }
