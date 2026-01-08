@@ -337,7 +337,7 @@ public class TeamPanel extends JPanel {
         if (ratio < 0) ratio = 0; else if (ratio > 1) ratio = 1;
 
         //Couleur de la barre
-        String colorName = "hight";
+        String colorName = "high";
         if (ratio <= 0.2) colorName = "low";
         else if (ratio <= 0.5) colorName = "medium";
         

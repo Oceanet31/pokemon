@@ -8,6 +8,9 @@ import com.esiea.pootp.game.Player;
 import com.esiea.pootp.game.GameEngine;
 import com.esiea.pootp.gui.GameWindow;
 import com.esiea.pootp.monsters.*;
+// Ajout de Scanner pour la lecture console
+import java.util.Scanner; 
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -20,13 +23,9 @@ public class PokemonApp {
     public static AttackDataBase attackDB = new AttackDataBase();
     static ItemDataBase itemDB = new ItemDataBase();
 
-    /**
-     * Main method to start the Pokémon application
-     * @param args command line arguments
-     * @throws FileNotFoundException if any data file is not found
-     */
     public static void main(String[] args) throws FileNotFoundException {
 
+        // 1. Chargement des données
         try { 
             monsterDB.loadMonstersFromFile(new File("com/esiea/pootp/dataBase/pokemons.txt"));
             attackDB.loadAttacksFromFile(new File("com/esiea/pootp/dataBase/attacks.txt"));
@@ -37,140 +36,133 @@ public class PokemonApp {
         }
 
         Player player = new Player("Sasha");
+        Scanner scanner = new Scanner(System.in);
+
+        // =================================================================================
+        // 2. PHASE DE SÉLECTION DU JOUEUR (CONSOLE)
+        // =================================================================================
+        System.out.println("========================================");
+        System.out.println("   BIENVENUE DANS NOT POKEMON JAVA");
+        System.out.println("========================================");
+        System.out.println("Veuillez constituer votre équipe de 3 monstres.");
         
-        Monster starter = monsterDB.getMonsters().get(0);
-        if (starter != null) {
-            starter.assignAttacks();
-            player.addMonsterToTeam(starter);
-        }
-        
-        if (!itemDB.getItems().isEmpty()) {
-            player.addItemToInventory(itemDB.getItems().get(0)); 
+        // On affiche la liste des monstres disponibles
+        ArrayList<Monster> availableMonsters = monsterDB.getMonsters();
+        for (int i = 0; i < availableMonsters.size(); i++) {
+            System.out.println("[" + i + "] " + availableMonsters.get(i).getName() 
+                + " (HP: " + availableMonsters.get(i).getHp() + ")");
         }
 
+        // Boucle pour choisir 3 monstres
+        while (player.getTeam().size() < 3) {
+            System.out.print("\nChoisissez le monstre n°" + (player.getTeam().size() + 1) + " (entrez le numéro) : ");
+            
+            try {
+                String input = scanner.nextLine();
+                int choice = Integer.parseInt(input);
+
+                if (choice >= 0 && choice < availableMonsters.size()) {
+                    // IMPORTANT : On clone le monstre pour ne pas modifier l'original dans la DB
+                    Monster template = availableMonsters.get(choice);
+                    Monster myMonster = cloneMonster(template);
+                    
+                    if (myMonster != null) {
+                        myMonster.assignAttacks(); // On lui donne ses attaques par défaut
+                        player.addMonsterToTeam(myMonster);
+                        System.out.println("-> " + myMonster.getName() + " ajouté à l'équipe !");
+                    }
+                } else {
+                    System.out.println("Numéro invalide. Essayez encore.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Veuillez entrer un nombre valide.");
+            }
+        }
+        
+        System.out.println("\nVotre équipe est prête !");
+        
+        // Ajout de quelques objets pour le combat
+        if (!itemDB.getItems().isEmpty()) {
+            // On donne 3 Potions (ou premier item de la liste)
+            for(int i=0; i<3; i++) player.addItemToInventory(itemDB.getItems().get(0));
+        }
+
+        // =================================================================================
+        // 3. CRÉATION DE L'ADVERSAIRE (IA)
+        // =================================================================================
+        Player enemy = new Player("Rival IA");
+        System.out.println("L'IA choisit ses monstres...");
+        
+        for (int i = 0; i < 3; i++) {
+            Monster randomMon = createRandomMonster();
+            enemy.addMonsterToTeam(randomMon);
+            System.out.println("L'IA a choisi : " + randomMon.getName());
+        }
+
+        // =================================================================================
+        // 4. LANCEMENT DU COMBAT GRAPHIQUE
+        // =================================================================================
+        System.out.println("\nLancement du combat graphique...");
+        
+        // On crée la fenêtre APRES avoir choisi les pokemons, sinon elle serait vide au début
         GameWindow window = new GameWindow(player);
         window.setVisible(true);
 
-
-        com.esiea.pootp.objects.Pokeball ball = new com.esiea.pootp.objects.Pokeball();
-
-        // On donne 5 pokeball au joueur
-        for(int i = 0; i < 5; i++) {
-            player.addItemToInventory(ball);
-        }
-
-        startNextBattle(player, window, 1);
-    }
-
-
-    /**
-     * Start the next battle for the player
-     * @param player The player
-     * @param window The game window
-     * @param round The current round number
-     */
-    public static void startNextBattle(Player player, GameWindow window, int round) {
+        // false car ce n'est pas un combat sauvage (c'est un duel 3v3)
+        GameEngine battle = new GameEngine(player, enemy, false, window);
         
-        if (player.hasLost()) return;
-
-        Player enemy;
-        boolean isWild = true;
-
-        if (round % 5 == 0) {
-            enemy = new Player("Maître de la Ligue");
-            enemy.addMonsterToTeam(createRandomMonster());
-            enemy.addMonsterToTeam(createRandomMonster());
-            isWild = false;
-        } else {
-            enemy = new Player("Monstre Sauvage");
-            Monster wild = createRandomMonster();
-            enemy.addMonsterToTeam(wild);
-        }
-
-        GameEngine battle = new GameEngine(player, enemy, isWild, window);
-        
+        // Définition de ce qui se passe quand le joueur gagne
         battle.setOnVictory(() -> {
-            Monster active = player.getActiveMonster();
-            Monster defeated = enemy.getTeam().get(0); // Le monstre vaincu
-            
-            if(active != null) {
-                //Gain d'XP
-                int xpGained = 50 * defeated.getLevel();
-                window.showDialog(active.getName() + " gagne " + xpGained + " XP !", () -> {
-                    active.gainXp(xpGained);
-                    
-                    //Gain d'Objet Aléatoire
-                    if (!itemDB.getItems().isEmpty()) {
-                        com.esiea.pootp.objects.Item loot;
-                        if (Math.random() < 0.3) {
-                            loot = new com.esiea.pootp.objects.Pokeball();
-                        } else {
-                             java.util.Random r = new java.util.Random();
-                             loot = itemDB.getItems().get(r.nextInt(itemDB.getItems().size()));
-                        }
-                        
-                        player.addItemToInventory(loot);
-
-                        window.showDialog("Vous trouvez : " + loot.getName() + " !", () -> {
-                            // Soin léger et combat suivant
-                            active.setHp(active.getHp() + 10); 
-                            startNextBattle(player, window, round + 1);
-                        });
-                    } else {
-                         startNextBattle(player, window, round + 1);
-                    }
-                });
-            } else {
-                startNextBattle(player, window, round + 1);
-            }
+            window.showDialog("Félicitations ! Vous avez vaincu l'IA !", () -> {
+                System.out.println("Victoire du joueur. Fin du programme.");
+                System.exit(0); // On ferme le jeu
+            });
         });
 
+        // Note : La défaite est déjà gérée dans GameEngine (player.hasLost() -> System.exit(0))
         battle.startBattle();
+        
+        scanner.close();
     }
 
+    // --- OUTILS UTILITAIRES (Gardés tels quels ou adaptés) ---
 
-    /**
-     * Create a random monster from the database
-     * @return a new Monster instance
-     */
     public static Monster createRandomMonster() {
         ArrayList<Monster> templates = monsterDB.getMonsters();
         if (templates.isEmpty()) return null;
         Random r = new Random();
         Monster template = templates.get(r.nextInt(templates.size()));
         Monster newMonster = cloneMonster(template);
-        if (newMonster != null) newMonster.assignAttacks(); //assigner des attaques compatibles
+        if (newMonster != null) assignRandomAttacks(newMonster); // IA a des attaques aléatoires
         return newMonster;
     }
 
-
-    /**
-     * Assign random compatible attacks to a monster
-     * @param m Monster to assign attacks to
-     */
     public static void assignRandomAttacks(Monster m) {
         ArrayList<Attack> allAttacks = attackDB.getAttacks(); 
         ArrayList<Attack> compatible = new ArrayList<>();
+        // On filtre les attaques compatibles avec le type du monstre
         for (Attack a : allAttacks) {
-            if (a.getType() == m.getElement() || a.getType() == com.esiea.pootp.monsters.ElementType.NATURE) {
+            if (a.getType() == m.getElement() || a.getType() == com.esiea.pootp.monsters.ElementType.NATURE 
+                || a.getType() == com.esiea.pootp.monsters.ElementType.NORMAL) {
                 compatible.add(a);
             }
         }
         Collections.shuffle(compatible);
+        // On en donne jusqu'à 4
         for (int i = 0; i < Math.min(4, compatible.size()); i++) {
             m.getAttacks().add(compatible.get(i));
         }
+        // Sécurité : si aucune attaque compatible, on met une attaque par défaut (Lutte simulée)
+        if (m.getAttacks().isEmpty() && !allAttacks.isEmpty()) {
+             m.getAttacks().add(allAttacks.get(0));
+        }
     }
 
-
-    /**
-     * Clone a monster based on a template
-     * @param template Monster to clone
-     */
     public static Monster cloneMonster(Monster template) {
         if (template == null) return null;
         Monster newMonster = null;
         
+        // Copie des stats de base selon le type
         if (template instanceof FireMonster) {
             FireMonster t = (FireMonster) template;
             newMonster = new FireMonster(t.getName(), t.getHp(), t.getDefense(), t.getAttack(), t.getSpeed(), t.getBurningChance());
@@ -200,51 +192,3 @@ public class PokemonApp {
         return newMonster;
     }
 }
-
-
-/* ⢰⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶
-⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠋⠉⠀⠁⠈⠛⠻⢿⣿⣿⡿⠿⠿⠿⠿⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⢼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢯⣙⠿⠿⣿⣿⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠁⠀⠀⠀⠀⠀⠀⠀⠉⠙⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⢺⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠛⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⢺⣿⣿⢗⣆⣿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠿⣛⡻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠙⠿⢿⡿⣾⡯⢞⣭⣾⣶⣶⣶⣶⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢲⣿⣿⣳⢻⣿⣿⣿⣿⠿⠟⠛⠋⠉⠉⠉⠉⠉⠉⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⡏⢖⣭⣾⣿⣿⣿⣿⣿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣶⣶⣦⡹⣮⣻⠌⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣴⣶⢖⡆⡙⢀⠀⠉⠉⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣶⣶⣾⣽⣷⣶⣦⣴⣤⡀⠀⠰⠿⢿⣿⣿⡿⣿⣮⡚⢧⣄⠀⠀⠀⠀⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿
-⣻⣿⣿⣿⣿⣿⣿⣿⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣡⠞⣘⣵⣯⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⢰⡳⣝⢿⣿⣿⣹⣿⣷⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠩⢿⣿⣿⣿⣿⣿⣿⣿⣿
-⣹⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣞⣛⣭⣵⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⢸⢿⣌⣯⢻⢣⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣿⣿⣿⣿⣿⣿⣿
-⢺⣿⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⡟⣾⣻⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⢲⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡁⠀⠀⠀⠀⠀⠀⠈⣿⣿⣿⠸⣿⣿⣿⣿⣿⣿⣿⡤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⣿⣿⣿
-⣽⣿⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣧⣧⢻⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⠃⢹⣿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿
-⣹⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⠁⠙⢿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠸⠋⠀⠀⠀⢻⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⣿⣿⣿
-⢾⣿⣿⣿⣿⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡄⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣽⣿⣿⣿⣿⣿
-⣻⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⣽⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡄⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢛⣿⣿⣿⣿⣿
-⣹⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡿⠁⠀⠙⠋⠉⠉⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢿⠟⠛⠋⠋⠙⠿⣟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⣿⣿⣿⣿
-⣹⣿⣿⣿⣿⣿⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⣆⠀⢠⣴⣦⠒⣈⡇⠀⢀⡹⣿⣿⣿⣿⣿⡉⣃⢆⡢⢀⣠⣴⣶⣥⣎⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣯⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢘⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣳⠽⠂⠘⠋⠉⠁⢉⡾⣖⢮⡹⣿⣿⣿⣿⡷⣽⣾⣯⠛⠟⠿⠻⠿⣿⣻⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⡧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣏⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣇⠀⢠⣀⠀⠀⣰⣇⣀⣿⣯⣿⣿⣿⣿⣿⣿⣟⣯⣠⣤⠀⠀⠀⢀⠀⠈⢡⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢘⣿⡗⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣽⣿⣿⣿⣿
-⢺⣿⣿⣿⣿⡷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⡃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣽⣾⣷⣾⣿⣿⣿⣿⣿⣿⣿⣿⣞⣿⣿⣿⣿⣿⣟⣿⣿⣿⣷⣶⣶⣿⣦⣤⣖⡃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⡧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿
-⣹⣿⣿⣿⣿⡗⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢫⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣽⣻⣿⣿⣿⣿⣞⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡅⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿
-⢼⣿⣿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠰⡍⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡷⣿⣿⣿⣿⣿⣯⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡄⠈⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿
-⢺⣿⣿⣿⣿⡷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠄⠀⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⣿⣿
-⣽⣿⣿⣿⣿⣿⡁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠌⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢺⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠛⠻⣿⣿⣿⠛⠛⣻⣿⣿⣿⣿⣿⣿⣿⣿⡃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢐⣿⣿⣿⣿
-⣾⣿⣿⣿⣿⣿⠆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⣤⣤⣼⣍⡳⢤⡤⣽⣿⣿⣿⣿⣿⣿⣿⣿⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⣿⣿⣿⡇
-⢾⣿⣿⣿⣿⣿⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⡇
-⣿⣿⣿⣿⣿⣿⣿⡅⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣗⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⠀⠠⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣟⣾⣿⣿⣿⣿⣿⣿⣿⣿⠿⣿⢟⡿⢻⢻⣛⠛⡟⡛⢿⣿⣿⣿⣿⣿⣿⣿⣞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢻⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⢀⣲⣽⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠣⠆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣻⣿⣿⣿⣿⣿⣿⣿⣵⣯⣾⣶⣿⣾⣿⣷⣯⣿⣧⣵⣮⣿⣿⣿⣿⣿⣿⣿⡾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⡏⠀⠀⠀⠀⠀⢀⡠⣶⣹⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⣄⡀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣟⡗⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⠛⣼⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡄⠀⠙⡷⠀⠀⠀⠀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⡽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠯⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣦⣶⣾⡛⣡⣾⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣶⣤⣶⡀⠀⠸⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡹⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢦⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠈⠻⠆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠩⢽⣞⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡳⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢞⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⢄⠘⠻⡻⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢻⠜⡀⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡦⠀⠀⠀⠀⠀⣀⠀⠀⠀⠀⠀⠀⠀⠘⠻⣶⣤⣂⠤⣀⡌⠛⠙⢋⠛⠝⠻⠟⠛⠙⢋⡉⠐⠁⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠃⠀⠀⠀⢐⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠛⢿⣿⣿⣦⡉⠘⠘⠂⢁⣀⣠⣴⣦⣶⡔⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⢠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⣠⣶⣆⣤⣰⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠛⠛⠓⠶⠾⠿⠿⠟⠛⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇
-⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢿⠿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⣿⠿⠻⠟⠛⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠉⠛⠻⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠛⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠙⠋⠙⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇
-⣹⣿⣿⣿⣿⣿⣿⠿⠛⠛⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⠻⠿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⣿
-⢸⣿⣿⣿⡿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⢿⣿⣿⣿⣿⣿⣿
-⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿
-    
-                        FILM REGARDE : 4/8
-
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ */

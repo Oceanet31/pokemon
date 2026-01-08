@@ -46,7 +46,7 @@ public class GameWindow extends JFrame {
         this.setTitle("NotPokémon Java Edition");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(1200, 800);
-        
+        this.setResizable(false);
         getLayeredPane().setLayout(null); 
         JPanel mainContent = new JPanel(new BorderLayout());
         mainContent.setBounds(0, 0, 1200, 800); 

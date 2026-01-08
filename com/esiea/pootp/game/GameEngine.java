@@ -3,7 +3,6 @@ package com.esiea.pootp.game;
 import com.esiea.pootp.attacks.Attack;
 import com.esiea.pootp.monsters.Monster;
 import com.esiea.pootp.objects.Item;
-import com.esiea.pootp.objects.Pokeball; 
 import com.esiea.pootp.gui.GameWindow;
 import java.util.List;
 import java.util.ArrayList;
@@ -116,7 +115,7 @@ public class GameEngine {
     }
 
     // =========================================================================
-    //                          LOGIQUE DU TOUR (CŒUR DU JEU)
+    //                          LOGIQUE DU TOUR (COEUR DU JEU)
     // =========================================================================
 
     /**
@@ -125,55 +124,63 @@ public class GameEngine {
      * @param playerAction the action chosen by the player
      */
     private void processTurn(ActionChoice playerAction) {
-        ActionChoice enemyAction = AIChoice(); // L'ennemi choisit son coup (IA simple)
+        ActionChoice enemyAction = AIChoice();
         
-        // CRUCIAL : On sauvegarde l'état des monstres AU DÉBUT du tour.
-        // Si on utilise player.getActiveMonster() plus tard, il pourrait avoir changé (si on switch).
-        // Pour comparer les vitesses, il faut les combattants initiaux.
         Monster pMonsterStart = player.getActiveMonster();
         Monster eMonsterStart = enemy.getActiveMonster();
         
-        // Comparaison de vitesse
+        // Comparaison de vitesse (Speed tie = avantage joueur ici)
         boolean playerFirst = pMonsterStart.getSpeed() >= eMonsterStart.getSpeed();
-        
-        // RÈGLE : Les Objets (2) et Switchs (3) sont toujours prioritaires sur les Attaques (1)
         if (playerAction.type == 2 || playerAction.type == 3) playerFirst = true;
 
         if (playerFirst) {
             // --- CAS A : JOUEUR RAPIDE ---
-            
-            // 1. Le joueur agit.
             executeAction(player, playerAction, pMonsterStart, eMonsterStart, () -> {
                 
-                // Ce code s'exécute UNE FOIS l'action du joueur terminée (dialogues finis).
-                
-                // 2. On vérifie si le combat continue (Personne n'est mort ?)
+                // 1. Vérification Victoire/Défaite globale
+                if (isBattleOver()) {
+                    checkBattleEndAndContinue(() -> {}); 
+                    return;
+                }
+
+                // 2. ANNULATION : Si l'ennemi est mort avant de pouvoir jouer
+                if (enemy.getTeam().get(0).getHp() <= 0) {
+                    // On gère le KO, et on force la FIN DU TOUR (endTurn) au lieu de l'attaque suivante
+                    handleKOSwitch(enemy, () -> endTurn());
+                    return;
+                }
+
+                // 3. Sinon, le combat continue normalement
                 checkBattleEndAndContinue(() -> {
-                    
-                    // Si on est ici, le combat continue.
-                    // On met à jour les cibles : Si le joueur a switché, l'ennemi doit taper le NOUVEAU monstre.
                     Monster currentTarget = player.getActiveMonster(); 
                     Monster currentAttacker = enemy.getActiveMonster();
                     
-                    // 3. L'ennemi riposte
                     executeAction(enemy, enemyAction, currentAttacker, currentTarget, () -> {
-                        // 4. Fin du tour (Vérif KO finale)
                         checkBattleEndAndContinue(() -> endTurn());
                     });
                 });
             });
         } else {
             // --- CAS B : ENNEMI RAPIDE ---
-            
-            // 1. L'ennemi agit
             executeAction(enemy, enemyAction, eMonsterStart, pMonsterStart, () -> {
                 
+                // 1. Vérification Victoire/Défaite globale
+                if (isBattleOver()) {
+                    checkBattleEndAndContinue(() -> {});
+                    return;
+                }
+
+                // 2. ANNULATION : Si le joueur est mort avant de pouvoir jouer
+                if (player.getTeam().get(0).getHp() <= 0) {
+                    handleKOSwitch(player, () -> endTurn());
+                    return;
+                }
+
+                // 3. Sinon, le combat continue
                 checkBattleEndAndContinue(() -> {
-                    // Mise à jour des cibles (au cas où l'ennemi se serait tué tout seul, sait-on jamais)
                     Monster currentTarget = enemy.getActiveMonster();
                     Monster currentAttacker = player.getActiveMonster();
                     
-                    // 2. Le joueur riposte
                     executeAction(player, playerAction, currentAttacker, currentTarget, () -> {
                         checkBattleEndAndContinue(() -> endTurn());
                     });
@@ -224,20 +231,6 @@ public class GameEngine {
 
         // --- TYPE 2 : OBJET ---
         if (action.type == 2) { 
-            // Cas Spécial : POKÉBALL (Capture)
-            if (action.item instanceof Pokeball) {
-                if (actor == player && isWildBattle) {
-                    window.showDialog(actor.getName() + " lance une Pokéball !", () -> {
-                        // On retire 1 Pokéball de l'inventaire
-                        actor.getInventory().put(action.item, actor.getInventory().get(action.item) - 1);
-                        tryCapture(defender, nextStep); // Logique de capture
-                    });
-                } else {
-                    window.showDialog("Impossible de capturer en duel !", nextStep);
-                }
-                return;
-            }
-
             // Cas Classique : Potion / Médicament
             window.showDialog(actor.getName() + " utilise " + action.item.getName() + " !", () -> {
                 actor.useItem(action.item, attacker); // Applique l'effet (Soins, etc.)
@@ -273,29 +266,30 @@ public class GameEngine {
      * @param onContinue le code à exécuter si le combat continue
      */
     private void checkBattleEndAndContinue(Runnable onContinue) {
-        // 1. Victoire (Ennemi n'a plus de pokémon)
+        // 1. Victoire du Joueur
         if (enemy.hasLost()) {
-            window.showDialog("Victoire ! L'adversaire n'a plus de Pokémon !", () -> {
-                if (onVictory != null) onVictory.run(); // Déclenche le gain d'XP
+            window.showDialog(player.getName() + " a gagné !", () -> {
+                window.dispose(); // Ferme la fenêtre
+                System.exit(0);   // Arrête le programme
             });
             return;
         } 
-        // 2. Défaite (Joueur n'a plus de pokémon)
+        // 2. Victoire de l'Ennemi (Défaite du joueur)
         else if (player.hasLost()) {
-            window.showDialog("Vous n'avez plus de Pokémon en forme...", () -> {
-                window.showDialog("Vous avez perdu le combat.", () -> System.exit(0)); // Fin du jeu
+            window.showDialog(enemy.getName() + " a gagné !", () -> {
+                window.dispose(); // Ferme la fenêtre
+                System.exit(0);   // Arrête le programme
             });
             return;
         }
         
-        // 3. Gestion des KO individuels
-        // On vérifie l'index 0 car getActiveMonster() renvoie null si mort, ce qui peut buguer.
+        // 3. Gestion des KO individuels (Reste inchangé pour la détection)
         if (enemy.getTeam().get(0).getHp() <= 0) {
-             handleKOSwitch(enemy, onContinue); // L'ennemi change de monstre
+             handleKOSwitch(enemy, onContinue); 
              return;
         }
         if (player.getTeam().get(0).getHp() <= 0) {
-             handleKOSwitch(player, onContinue); // Le joueur change de monstre
+             handleKOSwitch(player, onContinue); 
              return;
         }
 
@@ -309,34 +303,52 @@ public class GameEngine {
      * @param onComplete Le code à exécuter une fois le remplacement fait.
      */
     private void handleKOSwitch(Player p, Runnable onComplete) {
-        Monster deadMon = p.getTeam().get(0); // Le mort est forcément celui actif (0)
+        Monster deadMon = p.getTeam().get(0);
         deadMon.setState(com.esiea.pootp.monsters.State.DEAD);
+
+        // 1. EFFET VISUEL : On efface le Pokémon mort de l'écran immédiatement
+        // On force le BattlePanel à afficher "null" à la place du monstre KO
+        if (p == player) {
+            // Si c'est le joueur, on cache son monstre, mais on garde l'ennemi visible
+             window.getBattlePanel().updateMonsters(null, enemy.getActiveMonster());
+        } else {
+            // Si c'est l'ennemi, on cache son monstre, on garde le nôtre
+             window.getBattlePanel().updateMonsters(player.getActiveMonster(), null);
+        }
+        window.getBattlePanel().repaint(); // On force le redessin pour voir le vide
 
         window.showDialog(deadMon.getName() + " est K.O. !", () -> {
             
-            int swapIndex = -1;
-            for (int i = 0; i < p.getTeam().size(); i++) {
-                if (p.getTeam().get(i).getHp() > 0) {
-                    swapIndex = i;
-                    break;
+            // 2. DÉLAI : On laisse le terrain vide pendant 0.8 secondes
+            javax.swing.Timer waitTimer = new javax.swing.Timer(800, e -> {
+                ((javax.swing.Timer)e.getSource()).stop();
+
+                // 3. LOGIQUE DE REMPLACEMENT
+                int swapIndex = -1;
+                for (int i = 0; i < p.getTeam().size(); i++) {
+                    if (p.getTeam().get(i).getHp() > 0) {
+                        swapIndex = i;
+                        break;
+                    }
                 }
-            }
 
-            if (swapIndex != -1) {
-                Monster newMon = p.getTeam().get(swapIndex);
-
-                java.util.Collections.swap(p.getTeam(), 0, swapIndex);
-                
-                String msg = (p == player) ? "Go " + newMon.getName() + " !" : p.getName() + " envoie " + newMon.getName() + " !";
-                
-                window.showDialog(msg, () -> {
-                    updateGraphics();
-                    onComplete.run(); // On reprend le tour là où il s'était arrêté
-                });
-            } else {
-                
-                onComplete.run();
-            }
+                if (swapIndex != -1) {
+                    Monster newMon = p.getTeam().get(swapIndex);
+                    java.util.Collections.swap(p.getTeam(), 0, swapIndex);
+                    
+                    String msg = (p == player) ? "Go " + newMon.getName() + " !" : p.getName() + " envoie " + newMon.getName() + " !";
+                    
+                    window.showDialog(msg, () -> {
+                        // 4. RÉAPPARITION : On met à jour les graphismes avec le nouveau monstre
+                        updateGraphics(); 
+                        onComplete.run(); 
+                    });
+                } else {
+                    onComplete.run();
+                }
+            });
+            waitTimer.setRepeats(false);
+            waitTimer.start();
         });
     }
 
