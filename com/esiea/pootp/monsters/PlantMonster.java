@@ -23,13 +23,22 @@ public class PlantMonster extends NatureMonster{
      * @param attack Attack to use
      */
     public void attack(Monster target, Attack attack){
+        // Soin passif (PV) lié au type Nature (Seulement si terrain inondé)
         this.recoverHealth(target);
+        
+        // L'attaque inflige des dégâts
         target.getAttacked(this, attack);
 
-        //a la fin de l'attaque
-        if(Math.random() >= 0.8){
-            if (this.getState() != State.NORMAL && this.getState() != State.DEAD) {
-                this.setState(State.NORMAL);
+        // Effet Spécial PLANTE (Guérison Statut)
+        // Condition : Attaque de type NATURE
+        if (attack != null && attack.getType() == ElementType.NATURE) {
+            
+            // 20% de chance de guérir les altérations (Poison, Brûlure, Paralysie)
+            if (Math.random() < 0.2) { // 20% de chance
+                if (this.getState() != State.NORMAL && this.getState() != State.DEAD) {
+                    this.setState(State.NORMAL);
+                    System.out.println(this.getName() + " se soigne de ses problèmes de statut !");
+                }
             }
         }
     }

@@ -396,6 +396,31 @@ public abstract class Monster{
         System.out.println("   Défense: " + this.defense);
     }
 
+    /**
+     * Handle effects at the start of the turn
+     * @param opponent Opponent monster
+     */
+    public void onStartTurn(Monster opponent) {
+        // 1. Incrémenter la durée des effets
+        this.effectDuration++;
+
+        // 2. Gestion Brûlure / Poison (Dégâts)
+        if (this.state == State.BURNED || this.state == State.POISONED) {
+            // Vérification Terrain Inondé pour guérir
+            boolean isFlooded = (opponent instanceof WaterMonster && ((WaterMonster)opponent).isTerrainFlooded()) || (this instanceof WaterMonster && ((WaterMonster)this).isTerrainFlooded());
+            
+            if (isFlooded) {
+                this.state = State.NORMAL;
+                System.out.println(this.name + " est guéri par l'eau du terrain !");
+            } else {
+                // Application des dégâts
+                int dmg = (int)(this.getAttack() / 10); // 1/10eme de son attaque
+                this.takeDamage(dmg);
+                System.out.println(this.name + " souffre (" + dmg + " dmg).");
+            }
+        }
+    }
+
 
     //Monster has been attacked
     /**

@@ -31,27 +31,26 @@ public class EarthMonster extends Monster{
      */
     @Override
     public void attack(Monster monster, Attack attack){
-        //peut paraliser s'il utilise une attaque "anormale"
-        double damageBase = this.damages(monster);
 
-        if (!isProtected()){
 
-            if(Math.random() < this.fleeingChance){
+        if (attack != null && attack.getType() == ElementType.EARTH) {
+            if (!isProtected()){
 
-                double Rand = Math.random();
+                if(Math.random() < this.fleeingChance){
 
-                if(0.0 <= Rand && Rand < 0.33){
-                    this.fleeingDuration = 1;
-                } else if (0.33 <= Rand && Rand < 0.66){
-                    this.fleeingDuration = 2; 
-                } else if (0.66 <= Rand && Rand < 1){
-                    this.fleeingDuration = 3;
+                    double Rand = Math.random();
+
+                    if(0.0 <= Rand && Rand < 0.33){
+                        this.fleeingDuration = 1;
+                    } else if (0.33 <= Rand && Rand < 0.66){
+                        this.fleeingDuration = 2; 
+                    } else if (0.66 <= Rand && Rand < 1){
+                        this.fleeingDuration = 3;
+                    }
+
                 }
-
             }
         }
-
-
         monster.getAttacked(this, attack);
     }
 

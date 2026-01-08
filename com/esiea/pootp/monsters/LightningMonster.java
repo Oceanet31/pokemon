@@ -32,13 +32,22 @@ public class LightningMonster extends Monster{
      */
     @Override
     public void attack(Monster monster, Attack attack){
-        //peut paraliser s'il utilise une attaque "anormale"
         double damageBase = this.damages(monster);
 
-        //Re paralise le monstre en lui ajoutant a nouveau le temps
-        if(monster.getState() == State.PARALIZED){
-            if(Math.random() >= paralizedChance){
-                monster.setEffectDuration(monster.getEffectDuration()+paralizedDuration);
+        if (attack != null && attack.getType() == ElementType.LIGHTNING) {
+            
+            // Si déjà paralysé, on prolonge
+            if(monster.getState() == State.PARALIZED){
+                if(Math.random() >= getParalizedChance()){
+                     monster.setEffectDuration(monster.getEffectDuration() + 1);
+                }
+            } 
+            else {
+                if(Math.random() < getParalizedChance()) {
+                    monster.setState(State.PARALIZED);
+                    monster.setEffectDuration(2); // Durée initiale de paralysie
+                    System.out.println(this.getName() + " paralyse " + monster.getName() + " !");
+                }
             }
         }
 
@@ -94,5 +103,26 @@ public class LightningMonster extends Monster{
      */
     public double getParalizedChance() {
         return this.paralizedChance;
+    }
+    
+    /**
+     * Set the paralized chance of the monster
+     * @param paralizedChance New paralized chance
+     */
+    @Override
+    public void onStartTurn(Monster opponent) {
+        super.onStartTurn(opponent); // Appelle la logique de base (brûlure, etc.)
+
+        // Gestion de la guérison de la Paralysie
+        if (this.getState() == State.PARALIZED) {
+            // effectDuration est incrémenté dans super.onStartTurn
+            double chanceToCure = (double)this.getEffectDuration() / 6.0;
+            
+            if (Math.random() < chanceToCure) {
+                this.setState(State.NORMAL);
+                this.setEffectDuration(0);
+                System.out.println(this.getName() + " n'est plus paralysé !");
+            }
+        }
     }
 }

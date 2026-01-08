@@ -2,6 +2,7 @@ package com.esiea.pootp.game;
 
 import com.esiea.pootp.attacks.Attack;
 import com.esiea.pootp.monsters.Monster;
+import com.esiea.pootp.monsters.WaterMonster;
 import com.esiea.pootp.objects.Item;
 import com.esiea.pootp.gui.GameWindow;
 import java.util.List;
@@ -124,10 +125,24 @@ public class GameEngine {
      * @param playerAction the action chosen by the player
      */
     private void processTurn(ActionChoice playerAction) {
+
+        // On applique les effets temporels (Brûlure, Poison, flood, etc.)
+        player.getActiveMonster().onStartTurn(enemy.getActiveMonster());
+        enemy.getActiveMonster().onStartTurn(player.getActiveMonster());
+
+        if (isBattleOver() || player.getActiveMonster().getHp() <= 0 || enemy.getActiveMonster().getHp() <= 0) {
+             updateGraphics();
+             checkBattleEndAndContinue(() -> endTurn());
+             return;
+        }
+
+
         ActionChoice enemyAction = AIChoice();
         
         Monster pMonsterStart = player.getActiveMonster();
         Monster eMonsterStart = enemy.getActiveMonster();
+
+        
         
         // Comparaison de vitesse (Speed tie = avantage joueur ici)
         boolean playerFirst = pMonsterStart.getSpeed() >= eMonsterStart.getSpeed();
@@ -202,6 +217,13 @@ public class GameEngine {
         // --- TYPE 3 : SWITCH (Changement de Pokémon) ---
         if (action.type == 3) {
             if (actor == player) { // Pour l'instant, seul le joueur switch manuellement
+
+                Monster oldMon = actor.getTeam().get(0);
+                
+                if (oldMon instanceof WaterMonster) {
+                    ((WaterMonster) oldMon).resetFlood();
+                }
+
                 Monster newMon = actor.getTeam().get(action.switchIndex);
                 
                 // Dialogue 1 : "On retire..."

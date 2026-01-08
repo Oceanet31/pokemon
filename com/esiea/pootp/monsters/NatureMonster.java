@@ -20,11 +20,33 @@ public abstract class NatureMonster extends Monster{
      * @param monster Monster to check terrain status
      */
     public void recoverHealth(Monster monster){
-        if(monster instanceof WaterMonster){
-            if(((WaterMonster) monster).isTerrainFlooded()){
-                int healAmount = this.getHp()*(1/20);
-                this.setHp(this.getHp() + healAmount);
-            }
+       boolean isFlooded = false;
+        
+        if (monster instanceof WaterMonster && ((WaterMonster) monster).isTerrainFlooded()) {
+            isFlooded = true;
+        }
+
+        if (isFlooded) {
+            int healAmount = this.getStartingHp() / 20; // 5% des PV Max
+            if (healAmount < 1) healAmount = 1; // Au moins 1 PV
+
+            this.setHp(this.getHp() + healAmount);
+            System.out.println(this.getName() + " récupère " + healAmount + " PV grâce à la nature !");
+        }
+    }
+
+    @Override
+    public void onStartTurn(Monster opponent) {
+        super.onStartTurn(opponent);
+
+        // Règle : Récupère 1/20 PV si terrain inondé
+        // Le terrain peut être inondé par l'ennemi
+        boolean terrainFlooded = (opponent instanceof WaterMonster && ((WaterMonster)opponent).isTerrainFlooded());
+        
+        if (terrainFlooded) {
+            int heal = this.getStartingHp() / 20;
+            this.setHp(this.getHp() + heal);
+            System.out.println(this.getName() + " récupère " + heal + " PV grâce à la nature !");
         }
     }
 }

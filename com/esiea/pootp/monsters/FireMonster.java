@@ -29,14 +29,12 @@ public class FireMonster extends Monster{
     @Override
     public void attack(Monster enemy, Attack attack){
 
-        double damageBase = this.damages(enemy);
-
-        //check si enemy est en train de brûler
-        if (enemy.getState() == State.NORMAL) 
-        {
-            if (Math.random() < this.burningChance) 
-            {
-                enemy.setState(State.BURNED); // Appliquer l'état BRÛLÉ
+        if (attack != null && attack.getType() == ElementType.FIRE) {
+            if (enemy.getState() == State.NORMAL) {
+                if (Math.random() < this.getBurningChance()) {
+                    enemy.setState(State.BURNED);
+                    System.out.println(this.getName() + " brûle " + enemy.getName() + " !");
+                }
             }
         }
         enemy.getAttacked(this, attack);

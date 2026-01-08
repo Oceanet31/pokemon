@@ -31,30 +31,28 @@ public class WaterMonster extends Monster{
      * @param enemy Target monster to attack
      * @param attack Attack to use
      */
-    public void attack(Monster enemy, Attack attack){
+        public void attack(Monster enemy, Attack attack){
 
-        double damageBase = this.damages(enemy);
+            //check si le terrain est inondé
+            if (!isTerrainFlooded() && attack.getType() == ElementType.WATER){
 
-        //check si le terrain est inondé
-        if (!isTerrainFlooded()){
+                if(Math.random() < this.floodChance){          //si non, 30% de chance d'inonder le terrain
 
-            if(Math.random() < this.floodChance){          //si non, 30% de chance d'inonder le terrain
+                    double Rand = Math.random();
 
-                double Rand = Math.random();
+                    if(0.0 <= Rand && Rand < 0.33){           //10% de chance d'inonder pour 1 tour
+                        this.floodDuration = 1;
+                    } else if (0.33 <= Rand && Rand < 0.66){  //10% de chance d'inonder pour 2 tours
+                        this.floodDuration = 2; 
+                    } else if (0.66 <= Rand && Rand < 1){     //10% de chance d'inonder pour 3 tours
+                        this.floodDuration = 3;
+                    }
 
-                if(0.0 <= Rand && Rand < 0.33){           //10% de chance d'inonder pour 1 tour
-                    this.floodDuration = 1;
-                } else if (0.33 <= Rand && Rand < 0.66){  //10% de chance d'inonder pour 2 tours
-                    this.floodDuration = 2; 
-                } else if (0.66 <= Rand && Rand < 1){     //10% de chance d'inonder pour 3 tours
-                    this.floodDuration = 3;
                 }
-
             }
-        }
 
-        enemy.getAttacked(this, attack);
-    }
+            enemy.getAttacked(this, attack);
+        }
 
 
     /**
@@ -123,6 +121,23 @@ public class WaterMonster extends Monster{
      */
     public double getFallChance() {
         return this.fallChance;
+    }
+
+    @Override
+    public void onStartTurn(Monster opponent) {
+        super.onStartTurn(opponent);
+
+        // Si le terrain est inondé, on réduit la durée
+        if (this.floodDuration > 0) {
+            this.floodDuration--;
+            if (this.floodDuration == 0) {
+                System.out.println("L'eau se retire du terrain.");
+            }
+        }
+    }
+    
+    public void resetFlood() {
+        this.floodDuration = 0;
     }
     
 }

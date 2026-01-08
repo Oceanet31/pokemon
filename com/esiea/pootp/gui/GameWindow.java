@@ -77,6 +77,7 @@ public class GameWindow extends JFrame {
         
         textTimer = new Timer(30, e -> updateTextTypewriter());
         this.setVisible(true);
+    
     }
 
     /**
@@ -198,6 +199,7 @@ public class GameWindow extends JFrame {
         buttonPanel.setLayout(new GridLayout(2, 2, 0, 0));
         rightContainer.add(buttonPanel, BorderLayout.CENTER);
         bottomPanel.add(rightContainer, BorderLayout.EAST);
+        
     }
 
 
@@ -215,6 +217,8 @@ public class GameWindow extends JFrame {
         buttonPanel.add(createMenuButton("Pokémon", e -> toggleTeamMenu()));
         buttonPanel.add(createMenuButton("Fuite", e -> addLog("Impossible !")));
         buttonPanel.revalidate(); buttonPanel.repaint();
+        
+        
     }
 
     /**
