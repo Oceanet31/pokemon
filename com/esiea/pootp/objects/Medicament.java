@@ -32,8 +32,8 @@ public class Medicament extends Item {
      * Use the medicament on a monster
      * @param monster Monster to use the medicament on
      */
-    public void use(Monster monster) {
+    public String use(Monster monster) {
         monster.setState(State.NORMAL);
-        System.out.println(monster.getName() + " is now in NORMAL state.");
+        return monster.getName() + " est guéri !";
     }
 }

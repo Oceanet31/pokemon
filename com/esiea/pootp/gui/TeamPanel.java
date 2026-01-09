@@ -24,10 +24,13 @@ public class TeamPanel extends JPanel {
     // Consumer<Integer> veut dire : Une fonction qui prend un nombre (l'index) et ne renvoie rien.
     private Consumer<Integer> onSwitch; 
 
+    // NOUVEAU : Action pour ouvrir le sac
+    private Consumer<Integer> onOpenBag; 
+
     // États internes
     private int selectedSlot = -1; // Quel slot est cliqué ? (-1 = aucun)
     private ContextMenu contextMenu = null; // Le petit menu "Envoyer/Retour"
-
+    
     // Animation
     private Timer animTimer;
     private int iconOffsetY = 0; // Pour faire rebondir l'icône du Pokémon sélectionné
@@ -53,11 +56,13 @@ public class TeamPanel extends JPanel {
      * @param player Player whose team is displayed
      * @param onClose Action to perform on closing the panel
      * @param onSwitch Action to perform when switching Pokémon (index of selected slot)
+     * @param onOpenBag Action to perform when opening bag for a Pokémon (index of selected slot)
      */
-    public TeamPanel(Player player, Runnable onClose, Consumer<Integer> onSwitch) {
+    public TeamPanel(Player player, Runnable onClose, Consumer<Integer> onSwitch, Consumer<Integer> onOpenBag) {
         this.player = player;
         this.onClose = onClose;
         this.onSwitch = onSwitch;
+        this.onOpenBag = onOpenBag; // On enregistre l'action
         
         this.setLayout(null);
         this.setOpaque(false); // Transparent pour voir le jeu derrière si besoin
@@ -129,7 +134,8 @@ public class TeamPanel extends JPanel {
     private void openContextMenu() {
         if (contextMenu != null) return;
         contextMenu = new ContextMenu();
-        contextMenu.setBounds(800, 480, 350, 180);
+        // On agrandit la hauteur pour faire tenir les 3 boutons
+        contextMenu.setBounds(800, 430, 350, 260);
         this.add(contextMenu);
         this.setComponentZOrder(contextMenu, 0); // Met le menu au premier plan
         this.revalidate(); 
@@ -366,7 +372,7 @@ public class TeamPanel extends JPanel {
 
 
     /**
-     * Menu contextuel "Envoyer / Retour"
+     * Menu contextuel "Envoyer / Sac / Retour"
      */
     private class ContextMenu extends JPanel {
 
@@ -375,26 +381,25 @@ public class TeamPanel extends JPanel {
          */
         public ContextMenu() {
             setOpaque(false);
-            setLayout(new GridLayout(2, 1, 0, -10)); 
+            setLayout(new GridLayout(3, 1, 0, -10)); // 3 Lignes
             setBorder(new EmptyBorder(35, 40, 35, 40)); 
 
-            TeamMenuButton btnSend = new TeamMenuButton("Envoyer");     
+            TeamMenuButton btnSend = new TeamMenuButton("Envoyer");
             btnSend.addActionListener(e -> {
-                // ACTION : On appelle le 'Consumer' défini dans le constructeur.
-                // Cela dit au moteur : "Le joueur veut échanger avec le slot X".
                 if (selectedSlot > 0 && selectedSlot < player.getTeam().size()) {
-                    Monster selectedMonster = player.getTeam().get(selectedSlot);
-                    if (selectedMonster.getHp() > 0) {
-                        if (onSwitch != null) onSwitch.accept(selectedSlot);
-                    } else {
-                        // Message d'erreur si le Pokémon est K.O.
-                        JLabel errorMsg = new JLabel("Impossible d'envoyer un Pokémon K.O. !");
-                        errorMsg.setFont(pixelFont.deriveFont(32f));
-                    }
+                    if (onSwitch != null) onSwitch.accept(selectedSlot);
                 }
-                // Note: On ne ferme pas le menu ici, c'est le GameEngine/GameWindow qui fermera le TeamPanel.
             });
             this.add(btnSend);
+
+            // BOUTON SAC
+            TeamMenuButton btnBag = new TeamMenuButton("Sac");
+            btnBag.addActionListener(e -> {
+                 if (onOpenBag != null) {
+                     onOpenBag.accept(selectedSlot);
+                 }
+            });
+            this.add(btnBag);
 
             TeamMenuButton btnBack = new TeamMenuButton("Retour");
             btnBack.addActionListener(e -> closeContextMenu());

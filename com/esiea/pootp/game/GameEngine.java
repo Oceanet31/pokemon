@@ -387,6 +387,29 @@ public class GameEngine {
         });
     }
 
+    public void onPlayerUseItemTargeted(Item item, int targetIndex) {
+        if (targetIndex < 0 || targetIndex >= player.getTeam().size()) return;
+
+        Monster target = player.getTeam().get(targetIndex);
+
+        // Si c'est le monstre actif (Index 0), ça compte comme un tour de combat
+        if (targetIndex == 0) {
+            onPlayerUseItem(item); 
+        } 
+        // Si c'est un monstre de réserve, c'est GRATUIT (pas de processTurn)
+        else {
+            String resultMsg = player.useItem(item, target);
+            
+            // On affiche le résultat et on met à jour l'affichage
+            window.showDialog(resultMsg, () -> {
+                // On met à jour visuellement l'équipe (si le panneau est ouvert)
+                if (window.getTeamPanel() != null) {
+                    window.getTeamPanel().repaint();
+                }
+            });
+        }
+    }
+
     // =========================================================================
     //                          OUTILS ET IA
     // =========================================================================

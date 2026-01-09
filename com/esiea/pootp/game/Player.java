@@ -78,16 +78,25 @@ public class Player {
      * @param item Item to use
      * @param monster Monster to use the item on
      */
-    public void useItem(Item item, Monster monster) {
+    public String useItem(Item item, Monster monster) {
         if(this.inventory.containsKey(item) && this.inventory.get(item) > 0) {
-            System.out.println(this.name + " used " + item.getName() + " on " + monster.getName() + ".");
-            item.use(monster);
+            
+            // 1. On applique l'effet et on récupère le message
+            String result = item.use(monster); 
+            
+            // 2. On décrémente l'inventaire
             this.inventory.put(item, this.inventory.get(item) - 1);
+            
+            // 3. Si quantité tombe à 0, on supprime de la liste
+            if (this.inventory.get(item) <= 0) {
+                this.inventory.remove(item);
+            }
+            
+            return result;
         } else {
-            System.out.println("Item not available in inventory.");
+            return "Objet introuvable !";
         }
     }
-
 
     /**
      * Check if the player has lost (all monsters are dead)

@@ -26,6 +26,7 @@ public class GameWindow extends JFrame {
     
     private Player player;
     private GameEngine gameEngine;
+    private int tempBagTargetIndex = -1;
 
     // Assets graphiques
     private BufferedImage overlayBg, windowFrame, cursorImage, typesAtlas, categoriesAtlas;
@@ -37,7 +38,7 @@ public class GameWindow extends JFrame {
     private int textIndex;
     private Runnable onTextFinished; // Ce qu'on fait quand le texte est fini
     private boolean isTyping = false;
-
+    private TeamPanel teamPanel;
     /** Constructor for GameWindow
      * @param player Player instance
     */
@@ -403,45 +404,74 @@ public class GameWindow extends JFrame {
      * Bag overlay panel
      */
     private class BagOverlay extends JPanel {
+        private java.util.function.Consumer<Item> onItemClicked;
 
-        /**
-         * Constructor for BagOverlay
-         */
         public BagOverlay() {
-            setOpaque(false); setLayout(new BorderLayout()); setBorder(new EmptyBorder(30, 45, 30, 30));
-            JPanel listPanel = new JPanel(new GridLayout(0, 1, 0, 10)); // 1 colonne, espacements verticaux
-            listPanel.setOpaque(false);
+            this.setLayout(null);
+            this.setOpaque(false); // Important pour voir la transparence du cadre autour
+            
+            int startX = 50; 
+            int startY = 20;
+            int btnHeight = 35;
 
-            for (Map.Entry<Item, Integer> entry : player.getInventory().entrySet()) {
-                Item item = entry.getKey();
-                MenuButton btn = new MenuButton("x" + entry.getValue() + "   " + item.getName());
-                btn.setFont(pixelFont.deriveFont(38f)); 
-                btn.addActionListener(e -> {
-                    // Clic sur objet -> Appel au moteur
-                    if(gameEngine != null) gameEngine.onPlayerUseItem(item); 
-                    closeBagMenu();
-                });
-                listPanel.add(btn);
+            int y = startY; // On commence à dessiner les boutons un peu plus bas
+            
+            java.util.Map<Item, Integer> inventory = player.getInventory();
+            
+            if (inventory.isEmpty()) {
+                JLabel empty = new JLabel("Le sac est vide.");
+                empty.setFont(pixelFont.deriveFont(28f));
+                empty.setForeground(Color.WHITE);
+                empty.setBounds(startX, y, 400, 50);
+                this.add(empty);
+            } else {
+                for (java.util.Map.Entry<Item, Integer> entry : inventory.entrySet()) {
+                    Item item = entry.getKey();
+                    int count = entry.getValue();
+
+                    MenuButton btnItem = new MenuButton(item.getName() + " x" + count);
+                    btnItem.setFont(pixelFont.deriveFont(28f));
+                    btnItem.setBounds(startX, y, 400, 45); // Plus large pour tout afficher
+                    
+                    btnItem.addActionListener(e -> {
+                        if (onItemClicked != null) {
+                            onItemClicked.accept(item);
+                        } else if (gameEngine != null) {
+                            gameEngine.onPlayerUseItem(item); 
+                            closeBagMenu();
+                        }
+                    });
+
+                    this.add(btnItem);
+                    y += btnHeight;
+                }
             }
+            
+            MenuButton btnClose = new MenuButton("Fermer");
+            btnClose.setBounds(startX, 240, 200, 45); 
+            btnClose.setFont(pixelFont.deriveFont(28f));
+            btnClose.addActionListener(e -> closeBagMenu());
+            this.add(btnClose);
+        }
 
-            MenuButton btnBack = new MenuButton("Retour");
-            btnBack.setFont(pixelFont.deriveFont(38f));
-            btnBack.addActionListener(e -> closeBagMenu());
-            listPanel.add(btnBack);
-            add(listPanel, BorderLayout.CENTER);
+        public void setOnItemClicked(java.util.function.Consumer<Item> action) {
+            this.onItemClicked = action;
         }
 
         @Override 
-        /**
-         * Paint the bag overlay panel
-         * @param g Graphics context
-         */
         protected void paintComponent(Graphics g) {
+            // DESSIN DU CADRE (Exactement comme le menu du bas)
             if (windowFrame != null) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                
+                // On garde la même échelle que les autres interfaces (x4)
                 g2.scale(4.0, 4.0);
-                UIUtils.draw9Slice(g2, windowFrame, 0, 0, getWidth()/4, getHeight()/4);
+                
+                // Dessin du cadre 9-slice adapté à la taille de ce panneau
+                // getWidth()/4 car on a scalé par 4
+                UIUtils.draw9Slice(g2, windowFrame, 0, 0, getWidth() / 4, getHeight() / 4);
+                
                 g2.dispose();
             }
         }
@@ -451,28 +481,33 @@ public class GameWindow extends JFrame {
      * Toggle team menu
      */
     private void toggleTeamMenu() {
-        if (teamOverlay == null) {
-            // Création avec Callback pour le switch.
-            // Quand le joueur choisit un pokémon, on ferme le menu PUIS on prévient le moteur.
-            teamOverlay = new TeamPanel(player, 
+        if (teamPanel == null) {
+            teamPanel = new TeamPanel(player, 
                 () -> closeTeamMenu(), 
-                (slotIndex) -> {       
-                    closeTeamMenu();   
-                    if (gameEngine != null) gameEngine.onPlayerSwitch(slotIndex); 
+                (index) -> { closeTeamMenu(); gameEngine.onPlayerSwitch(index); },
+                (index) -> {
+                    tempBagTargetIndex = index; 
+                    toggleBagMenu(); 
                 }
             );
-            teamOverlay.setBounds(0, 0, getWidth(), getHeight());
-            JLayeredPane lp = getLayeredPane();
-            lp.add(teamOverlay, JLayeredPane.MODAL_LAYER); lp.moveToFront(teamOverlay);
-            lp.revalidate(); lp.repaint();
-        } else closeTeamMenu();
+            teamPanel.setBounds(0, 0, getWidth(), getHeight());
+            getLayeredPane().add(teamPanel, JLayeredPane.PALETTE_LAYER);
+            buttonPanel.setVisible(false);
+        } else {
+            closeTeamMenu();
+        }
     }
 
     /**
      * Close team menu
      */
     private void closeTeamMenu() {
-        if (teamOverlay != null) { getLayeredPane().remove(teamOverlay); teamOverlay = null; getLayeredPane().repaint(); }
+        if (teamPanel != null) { 
+            getLayeredPane().remove(teamPanel); 
+            teamPanel = null; 
+            getLayeredPane().repaint(); 
+            buttonPanel.setVisible(true);
+        }
     }
 
     /**
@@ -517,4 +552,6 @@ public class GameWindow extends JFrame {
             g2d.setColor(getForeground()); g2d.drawString(getText(), getInsets().left, (getHeight()/2)+10);
         }
     }
+
+    public TeamPanel getTeamPanel() { return teamPanel; }
 }

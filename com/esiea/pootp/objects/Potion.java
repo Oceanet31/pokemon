@@ -52,41 +52,35 @@ public class Potion extends Item{
      * @param monster Monster to use the potion on
      */
     @Override
-    public void use(Monster monster){
+    public String use(Monster monster){
         switch(this.type){
             case HEAL:
                 monster.healFullHP();
-                System.out.println(monster.getName() + " has been fully healed.");
-                break;
+                return monster.getName() + " a tous ses PV !";
 
             case REVIVE:
                 monster.healFullHP();
                 monster.setState(State.NORMAL);
-                System.out.println(monster.getName() + " has been revived to full health and is now in NORMAL state.");
-                break;
+                return monster.getName() + " est réanimé !";
 
             case CURE:
                 monster.setHp(monster.getHp() + this.power);
-                System.out.println(monster.getName() + " has been cured with " + this.power + " HP.");
-                break;
+                return monster.getName() + " récupère " + this.power + " PV.";
 
             case BOOST_ATTACK:
                 monster.setAttack(monster.getAttack() + this.power);
-                System.out.println(monster.getName() + " has been boosted with " + this.power + " attack.");
-                break;
+                return monster.getName() + " gagne " + this.power + " Attaque.";
 
             case BOOST_DEFENSE:
                 monster.setDefense(monster.getDefense() + this.power);
-                System.out.println(monster.getName() + " has been boosted with " + this.power + " defense.");
-                break;
+                return monster.getName() + " gagne " + this.power + " Défense.";
 
             case BOOST_SPEED:
                 monster.setSpeed(monster.getSpeed() + this.power);
-                System.out.println(monster.getName() + " has been boosted with " + this.power + " speed.");
-                break;
+                return monster.getName() + " gagne " + this.power + " Vitesse.";
 
             default:
-                break;
+                return "Rien ne se passe.";
         }
     }
 }
