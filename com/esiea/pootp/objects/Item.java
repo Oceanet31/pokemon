@@ -18,4 +18,8 @@ public abstract class Item{
     public boolean equals(Item item) {
         return this.getName().equals(item.getName());
     }
+
+    public boolean isHealingItem() {
+        return this instanceof Potion;
+    }
 }

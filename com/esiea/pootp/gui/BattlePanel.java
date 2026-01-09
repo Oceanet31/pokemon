@@ -212,7 +212,7 @@ public class BattlePanel extends JPanel {
                 int h = spriteToDraw.getHeight() * scale;
                 
                 int x =  getWidth()/6; 
-                int y = getHeight()/2 + 50;
+                int y = getHeight()/2 +150;
                 
                 g2d.drawImage(spriteToDraw, x, y, w, h, null);
             }
@@ -263,8 +263,8 @@ public class BattlePanel extends JPanel {
 
         // Calcul et dessin de la barre de vie
         int barX = x + 204; 
-        int barY = y + 81; 
-        int barW = 166;  
+        int barY = y + 80; 
+        int barW = 167;  
         int barH = 8;      
 
         if (lblPV != null) {
@@ -304,7 +304,6 @@ public class BattlePanel extends JPanel {
         }
 
         // Nom
-        g.setColor(Color.WHITE);
         g.setFont(pixelFont.deriveFont(50F));
         g.setColor(new Color(0,0,0,100)); 
         g.drawString(m.getName(), x + 79, y + 64); 
@@ -342,11 +341,18 @@ public class BattlePanel extends JPanel {
         }
 
         // Texte PV détaillé - Spécifique au joueur
-        g.setColor(Color.WHITE);
-        g.setFont(pixelFont.deriveFont(24f));
+
+        
+        //Ombre
+        g.setColor(new Color(0,0,0,100)); 
+        g.setFont(pixelFont.deriveFont(38f));
         String hpTxt = m.getHp() + " / " + m.getStartingHp();
         int txtW = g.getFontMetrics().stringWidth(hpTxt);
-        g.drawString(hpTxt, x + w - txtW - 40, y + 72);
+        g.drawString(hpTxt, x - txtW + 484, y + 134);
+
+
+        g.setColor(Color.WHITE);
+        g.drawString(hpTxt, x - txtW + 480, y + 130);
         
         // --- BARRE EXPÉRIENCE ---
         int expBarX = x + 128; 

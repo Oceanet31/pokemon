@@ -1,8 +1,10 @@
 package com.esiea.pootp.game;
 
 import com.esiea.pootp.attacks.Attack;
+import com.esiea.pootp.monsters.ElementType;
 import com.esiea.pootp.monsters.Monster;
 import com.esiea.pootp.monsters.WaterMonster;
+import com.esiea.pootp.monsters.State;
 import com.esiea.pootp.objects.Item;
 import com.esiea.pootp.gui.GameWindow;
 import java.util.List;
@@ -130,6 +132,17 @@ public class GameEngine {
         player.getActiveMonster().onStartTurn(enemy.getActiveMonster());
         enemy.getActiveMonster().onStartTurn(player.getActiveMonster());
 
+        String EffectTypeP = "";
+        String EffectTypeE = "";
+        EffectTypeP = player.getActiveMonster().getState().toString();
+        EffectTypeE = enemy.getActiveMonster().getState().toString();
+        window.showDialog(player.getActiveMonster().getName() + " subit des effets de " + EffectTypeP + " !", () -> {
+            updateGraphics();
+        });
+        window.showDialog(enemy.getActiveMonster().getName() + " subit des effets de " + EffectTypeE + " !", () -> {
+            updateGraphics();
+        });
+
         if (isBattleOver() || player.getActiveMonster().getHp() <= 0 || enemy.getActiveMonster().getHp() <= 0) {
              updateGraphics();
              checkBattleEndAndContinue(() -> endTurn());
@@ -144,7 +157,7 @@ public class GameEngine {
 
         
         
-        // Comparaison de vitesse (Speed tie = avantage joueur ici)
+        // Comparaison de vitesse (Speed tie = avantage joueur)
         boolean playerFirst = pMonsterStart.getSpeed() >= eMonsterStart.getSpeed();
         if (playerAction.type == 2 || playerAction.type == 3) playerFirst = true;
 
@@ -305,7 +318,7 @@ public class GameEngine {
             return;
         }
         
-        // 3. Gestion des KO individuels (Reste inchangé pour la détection)
+        // 3. Gestion des KO individuels
         if (enemy.getTeam().get(0).getHp() <= 0) {
              handleKOSwitch(enemy, onContinue); 
              return;
@@ -341,8 +354,8 @@ public class GameEngine {
 
         window.showDialog(deadMon.getName() + " est K.O. !", () -> {
             
-            // 2. DÉLAI : On laisse le terrain vide pendant 0.8 secondes
-            javax.swing.Timer waitTimer = new javax.swing.Timer(800, e -> {
+            // 2. DÉLAI : On laisse le terrain vide pendant 0.5 secondes
+            javax.swing.Timer waitTimer = new javax.swing.Timer(500, e -> {
                 ((javax.swing.Timer)e.getSource()).stop();
 
                 // 3. LOGIQUE DE REMPLACEMENT
@@ -378,40 +391,6 @@ public class GameEngine {
     //                          OUTILS ET IA
     // =========================================================================
 
-    // Tente de capturer un monstre
-    /**
-     * Try to capture a wild monster
-     * @param wildMonster the wild monster to capture
-     * @param failCallback the callback to execute if capture fails
-     */
-    private void tryCapture(Monster wildMonster, Runnable failCallback) {
-        int maxHp = wildMonster.getStartingHp();
-        int currentHp = wildMonster.getHp();
-        
-        // Formule : Moins il a de PV, plus chance est proche de 1.0 (100%)
-        double chance = 1.0 - ((double)currentHp / (double)(maxHp * 1.5));
-        
-        if (Math.random() < chance) {
-            window.showDialog("Hop ! " + wildMonster.getName() + " attrapé !", () -> {
-                // Gestion équipe pleine (Limite à 6)
-                if (player.getTeam().size() >= 6) {
-                     // Simplification : On remplace le monstre actif
-                     Monster toReplace = player.getActiveMonster();
-                     player.getTeam().remove(toReplace);
-                     player.addMonsterToTeam(wildMonster);
-                     window.showDialog("Équipe pleine ! " + toReplace.getName() + " est relâché.", () -> {
-                         if (onVictory != null) onVictory.run(); 
-                     });
-                } else {
-                    player.addMonsterToTeam(wildMonster);
-                    if (onVictory != null) onVictory.run(); 
-                }
-            });
-        } else {
-            window.showDialog("Zut ! Il s'est échappé...", failCallback);
-        }
-    }
-
     /**
      * Fin du tour : réaffiche le menu principal.
      */
@@ -424,21 +403,93 @@ public class GameEngine {
      * AI chooses an action for the enemy
      * @return the action chosen by the AI
      */
-    private ActionChoice AIChoice() {
+   private ActionChoice AIChoice() {
         ActionChoice action = new ActionChoice();
-        Monster active = enemy.getActiveMonster();
-        // Si PV < 30 et possède objets -> Soin
-        if (!isWildBattle && active.getHp() < 30 && !enemy.getInventory().isEmpty()) {
-            action.type = 2;
-            action.item = enemy.getInventory().keySet().iterator().next();
-        } else {
-            // Sinon -> Attaque aléatoire
-            action.type = 1;
-            List<Attack> attacks = active.getAttacks();
-            if (!attacks.isEmpty()) {
-                action.attack = attacks.get((int) (Math.random() * attacks.size()));
+        Monster aiMonster = enemy.getActiveMonster();
+        Monster playerMonster = player.getActiveMonster();
+
+        // =================================================================
+        // 1. LOGIQUE DE SWITCH 
+        // =================================================================
+        // On récupère le type qui bat notre monstre actuel (ex: EAU bat FEU)
+        ElementType myWeakness = aiMonster.getWeakType();
+        
+        // Si on a une faiblesse (pas null) ET que l'adversaire EST de ce type
+        if (myWeakness != null && myWeakness == playerMonster.getElement()) {
+            
+            int bestIndex = -1;
+            
+            // On cherche un remplaçant dans l'équipe
+            for (int i = 1; i < enemy.getTeam().size(); i++) {
+                Monster candidate = enemy.getTeam().get(i);
+                
+                // Si le candidat est vivant
+                if (candidate.getHp() > 0) {
+                    // Est-ce que ce candidat est AUSSI faible contre le joueur ?
+                    ElementType candidateWeakness = candidate.getWeakType();
+                    boolean isCandidateWeak = (candidateWeakness != null && candidateWeakness == playerMonster.getElement());
+                    
+                    // Si le candidat n'est PAS faible, c'est une bonne option
+                    if (!isCandidateWeak) {
+                        bestIndex = i;
+                        
+                        // Est-ce qu'il est carrément FORT contre le joueur ?
+                        ElementType candidateStrength = candidate.getStrongType();
+                        if (candidateStrength != null && candidateStrength == playerMonster.getElement()) {
+                            break; 
+                        }
+                    }
+                }
+            }
+
+            // Si on a trouvé quelqu'un de mieux, on switch !
+            if (bestIndex != -1) {
+                action.type = 3;
+                action.switchIndex = bestIndex;
+                return action;
             }
         }
+
+        // =================================================================
+        // 2. LOGIQUE DE SOIN (Si PV < 30%)
+        // =================================================================
+        if (!isWildBattle && aiMonster.getHp() < aiMonster.getMaxHp() * 0.3 && !enemy.getInventory().isEmpty()) {
+            for (Item item : enemy.getInventory().keySet()) {
+                if (item.isHealingItem() && enemy.getInventory().get(item) > 0) { 
+                    action.type = 2;
+                    action.item = item;
+                    return action;
+                }
+            }
+        }
+
+        // =================================================================
+        // 3. LOGIQUE D'ATTAQUE
+        // =================================================================
+        List<Attack> attacks = aiMonster.getAttacks();
+        Attack bestAttack = null;
+        double maxDamage = -1.0;
+
+        for (Attack atk : attacks) {
+            if (atk.getNbUse() > 0) {
+                double predictedDamage = aiMonster.damages(playerMonster, atk);
+                
+                if (predictedDamage > maxDamage) {
+                    maxDamage = predictedDamage;
+                    bestAttack = atk;
+                }
+            }
+        }
+
+        if (bestAttack != null) {
+            action.type = 1;
+            action.attack = bestAttack;
+        } else {
+            // Plus de PP ou aucune attaque -> Lutte
+            action.type = 1;
+            action.attack = null; 
+        }
+
         return action;
     }
     

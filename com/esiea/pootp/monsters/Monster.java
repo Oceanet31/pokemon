@@ -62,6 +62,39 @@ public abstract class Monster{
         return this.state;
     }
 
+    public ElementType getStrongType(){
+        switch(this.element){
+            case FIRE:
+                return ElementType.NATURE;
+            case WATER:
+                return ElementType.FIRE;
+            case EARTH:
+                return ElementType.LIGHTNING;
+            case LIGHTNING:
+                return ElementType.WATER;
+            case NATURE:
+                return ElementType.EARTH;
+            default:
+                return null;
+        }
+    }
+
+    public ElementType getWeakType(){
+        switch(this.element){
+            case FIRE:
+                return ElementType.WATER;
+            case WATER:
+                return ElementType.NATURE;
+            case EARTH:
+                return ElementType.LIGHTNING;
+            case LIGHTNING:
+                return ElementType.EARTH;
+            case NATURE:
+                return ElementType.FIRE;
+            default:
+                return null;
+        }
+    }
 
     /**
      * Set the state of the monster
@@ -87,6 +120,7 @@ public abstract class Monster{
         return this.effectDuration;
     }
 
+
     /**
      * Set the effect duration of the monster
      * @param value New effect duration
@@ -111,6 +145,9 @@ public abstract class Monster{
         return this.defense;
     }
 
+    public int getMaxHp(){
+        return this.startingHp;
+    }
 
     /**
      * Get the name of the monster
@@ -359,8 +396,8 @@ public abstract class Monster{
         
         if (!learnableAttacks.isEmpty()) {
             Random r = new Random();
-            Attack newAttack = learnableAttacks.get(r.nextInt(learnableAttacks.size()));
-
+            Attack modelAttack = learnableAttacks.get(r.nextInt(learnableAttacks.size()));
+            Attack newAttack = new Attack(modelAttack);
             if (this.attacks.size() < 4) {
                 this.attacks.add(newAttack);
                 System.out.println(this.name + " apprend l'attaque " + newAttack.getName() + " !");

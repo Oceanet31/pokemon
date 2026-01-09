@@ -8,6 +8,7 @@ public class Attack{
     private int nbUse;
     private int power;
     private double failProbability;
+    private int nbUseMax;
 
     /* Constructor for Attack */
     public Attack(String name, ElementType type, int nbUse, int power, double failProbability) {
@@ -16,6 +17,20 @@ public class Attack{
         this.nbUse = nbUse;
         this.power = power;
         this.failProbability = failProbability;
+        this.nbUseMax = nbUse;
+    }
+
+    /**
+     * Constructeur de COPIE (Crée une nouvelle attaque identique à l'originale)
+     * @param other L'attaque modèle à copier
+     */
+    public Attack(Attack other) {
+        this.name = other.name;
+        this.type = other.type;
+        this.nbUse = other.nbUse;
+        this.power = other.power;
+        this.failProbability = other.failProbability;
+        this.nbUseMax = nbUse;
     }
 
     /**
@@ -41,6 +56,10 @@ public class Attack{
      */
     public int getNbUse(){
         return this.nbUse;
+    }
+
+    public int getMaxUse(){
+        return this.nbUseMax;
     }
 
 

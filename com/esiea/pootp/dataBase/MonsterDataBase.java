@@ -62,7 +62,7 @@ public class MonsterDataBase {
 
                     String typeStr = scanner.next().toUpperCase();
 
-                      if (typeStr.equals("ELECTRIC")) {
+                      if (typeStr.equals("LIGHTNING")) {
 
                         type = ElementType.LIGHTNING;
 

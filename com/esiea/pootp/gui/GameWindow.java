@@ -326,7 +326,7 @@ public class GameWindow extends JFrame {
             int leftX = 20; int rightX = 150; int topY = 8;
             int typeScale = 3; int catScale = 4;
             
-            // Affichage du Type avec mapping corrigé (selon ton fichier JSON)
+            // Affichage du Type
             if (typesAtlas != null) {
                 int iconW = 32; int iconH = 14; int srcY = 0;
                 switch(currentAttack.getType()) {
@@ -346,7 +346,7 @@ public class GameWindow extends JFrame {
             
             // Affichage dynamique des PP
             drawShadowText(g2, "PP", leftX + 10, line1Y);
-            drawShadowText(g2, "" + currentAttack.getNbUse(), rightX + 10, line1Y);
+            drawShadowText(g2, "" + currentAttack.getNbUse() + "/" + currentAttack.getMaxUse(), rightX + 10, line1Y);
 
             drawShadowText(g2, "Puissance", leftX + 10, line2Y);
             drawShadowText(g2, "" + (int)currentAttack.getPower(), rightX + 10, line2Y);
@@ -409,24 +409,23 @@ public class GameWindow extends JFrame {
          */
         public BagOverlay() {
             setOpaque(false); setLayout(new BorderLayout()); setBorder(new EmptyBorder(30, 45, 30, 30));
-            JPanel listPanel = new JPanel(new GridLayout(5, 1)); listPanel.setOpaque(false);
-            
-            int count = 0;
+            JPanel listPanel = new JPanel(new GridLayout(0, 1, 0, 10)); // 1 colonne, espacements verticaux
+            listPanel.setOpaque(false);
+
             for (Map.Entry<Item, Integer> entry : player.getInventory().entrySet()) {
-                if(count >= 4) break; 
                 Item item = entry.getKey();
                 MenuButton btn = new MenuButton("x" + entry.getValue() + "   " + item.getName());
-                btn.setFont(pixelFont.deriveFont(52f)); 
+                btn.setFont(pixelFont.deriveFont(38f)); 
                 btn.addActionListener(e -> {
                     // Clic sur objet -> Appel au moteur
                     if(gameEngine != null) gameEngine.onPlayerUseItem(item); 
                     closeBagMenu();
                 });
-                listPanel.add(btn); count++;
+                listPanel.add(btn);
             }
 
             MenuButton btnBack = new MenuButton("Retour");
-            btnBack.setFont(pixelFont.deriveFont(52f));
+            btnBack.setFont(pixelFont.deriveFont(38f));
             btnBack.addActionListener(e -> closeBagMenu());
             listPanel.add(btnBack);
             add(listPanel, BorderLayout.CENTER);

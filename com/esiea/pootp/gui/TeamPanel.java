@@ -213,15 +213,15 @@ public class TeamPanel extends JPanel {
      */
     private void drawBottomBar(Graphics2D g2) {
         int boxX = 0; 
-        int boxY = getHeight() - 170; 
-        int boxW = getWidth() - 70; 
+        int boxY = getHeight() - 130; 
+        int boxW = getWidth() - 10; 
         int boxH = 70;
 
         if (windowFrame != null) {
             Graphics2D gFrame = (Graphics2D) g2.create();
             gFrame.translate(boxX, boxY); 
             gFrame.scale(4.0, 4.0);
-            UIUtils.draw9Slice(gFrame, windowFrame, 0, 0, boxW / 4, boxH / 4);
+            UIUtils.draw9Slice(gFrame, windowFrame, 0, 0, boxW / 4, (boxH / 4) + 7);
             gFrame.dispose();
         }
         
@@ -229,11 +229,11 @@ public class TeamPanel extends JPanel {
         String msg = (contextMenu != null) ? "Que faire avec ce Pokémon ?" : "Sélectionnez un Pokémon.";
 
         //Placement du texte dans le cadre
-        drawShadowText(g2, msg, boxX + 40, boxY + 50);
+        drawShadowText(g2, msg, boxX + 40, boxY + 60);
 
         // Bouton "Sortir"
         TeamMenuButton btnExit = new TeamMenuButton("Sortir");
-        btnExit.setBounds(880,  boxY + 5 , 200, 60); 
+        btnExit.setBounds(880,  boxY +20 , 200, 60); 
         btnExit.addActionListener(e -> {
             if (contextMenu == null) {
                 stopAnimation();
@@ -378,12 +378,19 @@ public class TeamPanel extends JPanel {
             setLayout(new GridLayout(2, 1, 0, -10)); 
             setBorder(new EmptyBorder(35, 40, 35, 40)); 
 
-            TeamMenuButton btnSend = new TeamMenuButton("Envoyer");
+            TeamMenuButton btnSend = new TeamMenuButton("Envoyer");     
             btnSend.addActionListener(e -> {
                 // ACTION : On appelle le 'Consumer' défini dans le constructeur.
                 // Cela dit au moteur : "Le joueur veut échanger avec le slot X".
                 if (selectedSlot > 0 && selectedSlot < player.getTeam().size()) {
-                    if (onSwitch != null) onSwitch.accept(selectedSlot);
+                    Monster selectedMonster = player.getTeam().get(selectedSlot);
+                    if (selectedMonster.getHp() > 0) {
+                        if (onSwitch != null) onSwitch.accept(selectedSlot);
+                    } else {
+                        // Message d'erreur si le Pokémon est K.O.
+                        JLabel errorMsg = new JLabel("Impossible d'envoyer un Pokémon K.O. !");
+                        errorMsg.setFont(pixelFont.deriveFont(32f));
+                    }
                 }
                 // Note: On ne ferme pas le menu ici, c'est le GameEngine/GameWindow qui fermera le TeamPanel.
             });

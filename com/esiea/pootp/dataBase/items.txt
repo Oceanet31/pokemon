@@ -2,8 +2,61 @@ Medicament
     Name Antidote
     Type POISONED
 EndMedicament
+
+Medicament
+    Name Anti-Para
+    Type PARALIZED
+EndMedicament
+
+Medicament
+    Name Anti-Brule
+    Type BURNED
+EndMedicament
+
 Potion
-    Name Berry Juice
-    Type Cure
+    Name Potion
+    Type CURE
+    Power 20
+EndPotion
+
+Potion
+    Name SuperPotion
+    Type CURE
+    Power 50
+EndPotion
+
+Potion
+    Name HyperPotion
+    Type CURE
+    Power 200
+EndPotion
+
+Potion
+    Name MaxPotion
+    Type HEAL
+    Power 999
+EndPotion
+
+Potion
+    Name MaxRevive
+    Type REVIVE
+    Power 999
+EndPotion
+
+Potion
+    Name X-Attack
+    Type BOOST_ATTACK
+    Power 20
+EndPotion
+
+Potion
+    Name X-Defense
+    Type BOOST_DEFENSE
+    Power 20
+EndPotion
+
+Potion
+    Name X-Speed
+    Type BOOST_SPEED
     Power 20
 EndPotion

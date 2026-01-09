@@ -16,7 +16,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
-
 public class PokemonApp {
 
     static MonsterDataBase monsterDB = new MonsterDataBase();
@@ -53,8 +52,8 @@ public class PokemonApp {
                 + " (HP: " + availableMonsters.get(i).getHp() + ")");
         }
 
-        // Boucle pour choisir 3 monstres
-        while (player.getTeam().size() < 3) {
+        // Boucle pour choisir 6 monstres
+        while (player.getTeam().size() < 6) {
             System.out.print("\nChoisissez le monstre n°" + (player.getTeam().size() + 1) + " (entrez le numéro) : ");
             
             try {
@@ -83,20 +82,28 @@ public class PokemonApp {
         
         // Ajout de quelques objets pour le combat
         if (!itemDB.getItems().isEmpty()) {
-            // On donne 3 Potions (ou premier item de la liste)
-            for(int i=0; i<3; i++) player.addItemToInventory(itemDB.getItems().get(0));
+            // On donne 6 Items
+            Random random = new Random();
+            for(int i=0; i<6; i++) player.addItemToInventory(itemDB.getItems().get(random.nextInt(itemDB.getItems().size())));
         }
 
         // =================================================================================
         // 3. CRÉATION DE L'ADVERSAIRE (IA)
         // =================================================================================
-        Player enemy = new Player("Rival IA");
-        System.out.println("L'IA choisit ses monstres...");
+        Player enemy = new Player("Jean-Michel");
+        System.out.println("Jean-Michel choisit ses monstres...");
         
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             Monster randomMon = createRandomMonster();
             enemy.addMonsterToTeam(randomMon);
-            System.out.println("L'IA a choisi : " + randomMon.getName());
+            System.out.println("Jean-Michel a choisi : " + randomMon.getName());
+        }
+
+         // Ajout de quelques objets pour le combat
+        if (!itemDB.getItems().isEmpty()) {
+            // On donne 6 Items
+            Random random = new Random();
+            for(int i=0; i<6; i++) enemy.addItemToInventory(itemDB.getItems().get(random.nextInt(itemDB.getItems().size())));
         }
 
         // =================================================================================
@@ -119,13 +126,12 @@ public class PokemonApp {
             });
         });
 
-        // Note : La défaite est déjà gérée dans GameEngine (player.hasLost() -> System.exit(0))
         battle.startBattle();
         
         scanner.close();
     }
 
-    // --- OUTILS UTILITAIRES (Gardés tels quels ou adaptés) ---
+    // --- OUTILS UTILITAIRES ---
 
     public static Monster createRandomMonster() {
         ArrayList<Monster> templates = monsterDB.getMonsters();
@@ -142,19 +148,20 @@ public class PokemonApp {
         ArrayList<Attack> compatible = new ArrayList<>();
         // On filtre les attaques compatibles avec le type du monstre
         for (Attack a : allAttacks) {
-            if (a.getType() == m.getElement() || a.getType() == com.esiea.pootp.monsters.ElementType.NATURE 
-                || a.getType() == com.esiea.pootp.monsters.ElementType.NORMAL) {
+            if (a.getType() == m.getElement() || a.getType() == com.esiea.pootp.monsters.ElementType.NORMAL) {
                 compatible.add(a);
             }
         }
         Collections.shuffle(compatible);
         // On en donne jusqu'à 4
-        for (int i = 0; i < Math.min(4, compatible.size()); i++) {
-            m.getAttacks().add(compatible.get(i));
+       for (int i = 0; i < Math.min(4, compatible.size()); i++) {
+            // On prend l'original, on le copie, et on donne la copie au monstre
+            Attack original = compatible.get(i);
+            m.getAttacks().add(new Attack(original)); 
         }
-        // Sécurité : si aucune attaque compatible, on met une attaque par défaut (Lutte simulée)
+        
         if (m.getAttacks().isEmpty() && !allAttacks.isEmpty()) {
-             m.getAttacks().add(allAttacks.get(0));
+             m.getAttacks().add(new Attack(allAttacks.get(0)));
         }
     }
 
